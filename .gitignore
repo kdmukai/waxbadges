@@ -1,6 +1,9 @@
 # Prerequisites
 *.d
 
+*.wasm
+*.abi
+
 # Compiled Object files
 *.slo
 *.lo
