@@ -1,0 +1,2 @@
+-e git+https://github.com/tokenika/eosfactory.git@1e48eb5d479f2523ae04ed5cec61a6aa3c5b6a48#egg=eosfactory_tokenika
+termcolor==1.1.0

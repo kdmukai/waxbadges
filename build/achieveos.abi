@@ -1,0 +1,305 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT ",
+    "version": "eosio::abi/1.1",
+    "types": [],
+    "structs": [
+        {
+            "name": "Achievement",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "uint64"
+                },
+                {
+                    "name": "org",
+                    "type": "uint64"
+                },
+                {
+                    "name": "category",
+                    "type": "uint64"
+                },
+                {
+                    "name": "achievement_name",
+                    "type": "string"
+                },
+                {
+                    "name": "active",
+                    "type": "bool"
+                }
+            ]
+        },
+        {
+            "name": "Category",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "uint64"
+                },
+                {
+                    "name": "org",
+                    "type": "uint64"
+                },
+                {
+                    "name": "category_name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Grantor",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "uint64"
+                },
+                {
+                    "name": "org",
+                    "type": "uint64"
+                },
+                {
+                    "name": "grantor_name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Organization",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "uint64"
+                },
+                {
+                    "name": "org_name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "User",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "uint64"
+                },
+                {
+                    "name": "org",
+                    "type": "uint64"
+                },
+                {
+                    "name": "user_name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "UserAchievement",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "uint64"
+                },
+                {
+                    "name": "user",
+                    "type": "uint64"
+                },
+                {
+                    "name": "achievement",
+                    "type": "uint64"
+                },
+                {
+                    "name": "grantor",
+                    "type": "uint64"
+                },
+                {
+                    "name": "revoked",
+                    "type": "bool"
+                }
+            ]
+        },
+        {
+            "name": "addach",
+            "base": "",
+            "fields": [
+                {
+                    "name": "org_owner",
+                    "type": "name"
+                },
+                {
+                    "name": "org_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "achievement_name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "addorg",
+            "base": "",
+            "fields": [
+                {
+                    "name": "org_owner",
+                    "type": "name"
+                },
+                {
+                    "name": "org_name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "grantach",
+            "base": "",
+            "fields": [
+                {
+                    "name": "org_owner",
+                    "type": "name"
+                },
+                {
+                    "name": "user_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "achievement_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "grantor_id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "retireach",
+            "base": "",
+            "fields": [
+                {
+                    "name": "org_owner",
+                    "type": "name"
+                },
+                {
+                    "name": "ach_id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "revokeach",
+            "base": "",
+            "fields": [
+                {
+                    "name": "org_owner",
+                    "type": "name"
+                },
+                {
+                    "name": "userachievement_id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "updateorg",
+            "base": "",
+            "fields": [
+                {
+                    "name": "org_owner",
+                    "type": "name"
+                },
+                {
+                    "name": "org_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "org_name",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "name": "addach",
+            "type": "addach",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "addorg",
+            "type": "addorg",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "grantach",
+            "type": "grantach",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "retireach",
+            "type": "retireach",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "revokeach",
+            "type": "revokeach",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "updateorg",
+            "type": "updateorg",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [
+        {
+            "name": "achievements",
+            "type": "Achievement",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "categories",
+            "type": "Category",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "grantors",
+            "type": "Grantor",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "orgs",
+            "type": "Organization",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "userachs",
+            "type": "UserAchievement",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "users",
+            "type": "User",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        }
+    ],
+    "ricardian_clauses": [],
+    "variants": []
+}
