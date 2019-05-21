@@ -34,7 +34,7 @@ Or for a gaming context maybe there's a "Challenge Badges" Category for achievem
 ### Blockchain storage is expensive
 The structure above writes the bare minimum data to the blockchain to minimize expenses while still ensuring that the data is human-readable.
 
-Projects built on top of Achieveos are free to store more data via the optional `json_data` field in each struct. For example, you could include the url for an icon asset for a given Category and perhaps a longer description:
+Projects built on top of Achieveos are free to store more data via the optional `json_data` field in each struct. For example, you could include the url for an icon asset for a given Achievement and perhaps a longer description:
 
 ```
 json_data = {
@@ -64,7 +64,7 @@ Install the python dependencies:
 pip install -r requirements.txt
 ```
 
-The tests are written using [EOSFactory](https://eosfactory.io/) which makes it easy to write thorough and complex unit tests in Python. EOSFactory will launch a local test node, generate user accounts, compile the smart contract, deploy it, and then execute your unit tests.
+The tests are written using [EOSFactory](https://eosfactory.io/) which makes it easy to write thorough and complex unit tests in Python. EOSFactory will launch a local test node, generate user accounts, compile the smart contract, deploy it, and then execute the unit tests.
 
 The entire process is kicked off by a single command:
 ```

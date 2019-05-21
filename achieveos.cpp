@@ -18,8 +18,10 @@ public:
     check_is_contract_or_owner(org_owner);
 
     auto orgs = get_orgs(org_owner);
+    uint64_t pk = orgs.available_primary_key();
+    if (pk == 0) { pk++; }  // Reserve 0 as a NULL value
     orgs.emplace(maybe_charge_to(org_owner), [&](auto& row) {
-      row.key = orgs.available_primary_key() + 1;   // Reserve 0 to represent null
+      row.key = pk;
       row.org_name = org_name;
     });
   }
@@ -43,8 +45,10 @@ public:
     check_is_contract_or_owner(org_owner);
 
     auto categories = get_categories(org_owner);
+    uint64_t pk = categories.available_primary_key();
+    if (pk == 0) { pk++; }  // Reserve 0 as a NULL value
     categories.emplace(maybe_charge_to(org_owner), [&](auto& row) {
-      row.key = categories.available_primary_key() + 1;   // Reserve 0 to represent null
+      row.key = pk;
       row.org = org_id;
       row.category_name = category_name;
     });
@@ -91,8 +95,10 @@ public:
     check_is_contract_or_owner(org_owner);
 
     auto achievements = get_achievements(org_owner);
+    uint64_t pk = achievements.available_primary_key();
+    if (pk == 0) { pk++; }  // Reserve 0 as a NULL value
     achievements.emplace(maybe_charge_to(org_owner), [&](auto& row) {
-      row.key = achievements.available_primary_key() + 1;   // Reserve 0 to represent null
+      row.key = pk;
       row.org = org_id;
       row.achievement_name = achievement_name;
     });
@@ -156,11 +162,13 @@ public:
   void addgrantor(name org_owner, uint64_t org_id, string grantor_name) {
     check_is_contract_or_owner(org_owner);
 
-    auto grantors = get_grantors(org_owner);
-
     // Not going to check for dupes
+
+    auto grantors = get_grantors(org_owner);
+    uint64_t pk = grantors.available_primary_key();
+    if (pk == 0) { pk++; }  // Reserve 0 as a NULL value
     grantors.emplace(maybe_charge_to(org_owner), [&](auto& row) {
-      row.key = grantors.available_primary_key() + 1;   // Reserve 0 to represent null
+      row.key = pk;
       row.org = org_id;
       row.grantor_name = grantor_name;
       row.active = true;
@@ -199,8 +207,10 @@ public:
     check(gra_iter->active, "Grantor is not active");
 
     auto userachievements = get_userachievements(org_owner);
+    uint64_t pk = userachievements.available_primary_key();
+    if (pk == 0) { pk++; }  // Reserve 0 as a NULL value
     userachievements.emplace(maybe_charge_to(org_owner), [&](auto& row) {
-      row.key = userachievements.available_primary_key() + 1;   // Reserve 0 to represent null
+      row.key = pk;
       row.user = user_id;
       row.achievement = achievement_id;
       row.grantor = grantor_id;
@@ -343,5 +353,6 @@ private:
       return get_self();
     }
   }
+
 
 };
