@@ -1,4 +1,7 @@
+import argparse
+import sys
 import unittest
+
 from eosfactory.eosf import *
 
 
@@ -13,6 +16,7 @@ ALICE = Account()
 CAROL = Account()
 BOB = Account()
 
+skip_recompile = False
 
 class Test(unittest.TestCase):
 
@@ -35,7 +39,8 @@ class Test(unittest.TestCase):
         COMMENT("Create, build and deploy the contract:")
         create_account("HOST", MASTER)
         smart = Contract(HOST, CONTRACT_WORKSPACE)
-        smart.build()
+        if not skip_recompile:
+            smart.build()
         smart.deploy()
 
 
@@ -63,7 +68,7 @@ class Test(unittest.TestCase):
         self.assertEqual(table.json["rows"][1]["org_name"], org_name)
 
 
-    def test_100_other_create_org(self):
+    def test_110_other_create_org(self):
         COMMENT("Should not allow a different account to create an Organization on behalf of org_owner")
         org_name = "Not Allowed Org"
         with self.assertRaises(Exception) as e:
@@ -76,12 +81,22 @@ class Test(unittest.TestCase):
         self.assertTrue("Not authorized" in err_msg, err_msg)
 
 
-        # COMMENT('''
-        # WARNING: This action should fail due to authority mismatch!
-        # ''')
-        # with self.assertRaises(MissingRequiredAuthorityError):
-        #     HOST.push_action(
-        #         "hi", {"user":CAROL}, permission=(BOB, Permission.ACTIVE))
+    def test_120_account_create_separate_org(self):
+        COMMENT("Should allow a different EOS account to create its own isolated Organization")
+        org_name = "A Totally Different Org"
+        HOST.push_action(
+            "addorg", {"org_owner": BOB, "org_name": org_name},
+            permission=(BOB, Permission.ACTIVE),
+            force_unique=True)
+
+        # Because of the table scope, Bob's Org will also have index 0
+        table = HOST.table("orgs", BOB)
+        self.assertEqual(table.json["rows"][0]["org_name"], org_name)
+
+        # While Alice still has her Orgs in her own table scope
+        table = HOST.table("orgs", ALICE)
+        self.assertTrue(table.json["rows"][0]["org_name"] != org_name)
+
 
     @classmethod
     def tearDownClass(cls):
@@ -89,4 +104,17 @@ class Test(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    parser = argparse.ArgumentParser(description="""
+        This is a unit test for the achieveos smart contract.
+    """)
+
+    parser.add_argument(
+        "-s", "--skip_recompile",
+        action="store_true",
+        help="Don't recompile the contract")
+
+    args = parser.parse_args()
+
+    skip_recompile = args.skip_recompile
+
+    unittest.main(argv=[sys.argv[0]])

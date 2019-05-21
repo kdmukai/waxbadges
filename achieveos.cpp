@@ -15,22 +15,21 @@ public:
 
   [[eosio::action]]
   void addorg(name org_owner, string org_name) {
-    check(has_auth(get_self()) || has_auth(org_owner), "Not authorized");
+    check_is_contract_or_owner(org_owner);
 
-    // tables all exist within each org_owner's scope
-    org_index orgs(get_self(), org_owner.value);
+    auto orgs = get_orgs(org_owner);
     orgs.emplace(maybe_charge_to(org_owner), [&](auto& row) {
-      row.key = orgs.available_primary_key();
+      row.key = orgs.available_primary_key() + 1;   // Reserve 0 to represent null
       row.org_name = org_name;
     });
   }
 
 
   [[eosio::action]]
-  void updateorg(name org_owner, uint64_t org_id, string org_name) {
-    check(has_auth(get_self()) || has_auth(org_owner), "Not authorized");
+  void editorg(name org_owner, uint64_t org_id, string org_name) {
+    check_is_contract_or_owner(org_owner);
 
-    org_index orgs(get_self(), org_owner.value);
+    auto orgs = get_orgs(org_owner);
     auto iter = orgs.find(org_id);
     check(iter != orgs.end(), "Organization not found!");
     orgs.modify(iter, maybe_charge_to(org_owner), [&](auto& row) {
@@ -40,23 +39,75 @@ public:
 
 
   [[eosio::action]]
-  void addach(name org_owner, uint64_t org_id, string achievement_name) {
-    check(has_auth(get_self()) || has_auth(org_owner), "Not authorized");
+  void addcat(name org_owner, uint64_t org_id, string category_name) {
+    check_is_contract_or_owner(org_owner);
 
-    achievement_index achievements(get_self(), org_owner.value);
+    auto categories = get_categories(org_owner);
+    categories.emplace(maybe_charge_to(org_owner), [&](auto& row) {
+      row.key = categories.available_primary_key() + 1;   // Reserve 0 to represent null
+      row.org = org_id;
+      row.category_name = category_name;
+    });
+  }
+
+
+  [[eosio::action]]
+  void editcat(name org_owner, uint64_t category_id, string category_name) {
+    check_is_contract_or_owner(org_owner);
+
+    auto categories = get_categories(org_owner);
+    auto iter = categories.find(category_id);
+    check(iter != categories.end(), "Category not found!");
+    categories.modify(iter, maybe_charge_to(org_owner), [&](auto& row) {
+      row.category_name = category_name;
+    });
+  }
+
+
+  [[eosio::action]]
+  void removecat(name org_owner, uint64_t category_id) {
+    check_is_contract_or_owner(org_owner);
+
+    // First zero out any references in Achievements
+    auto achievements = get_achievements(org_owner);
+    auto cat_achievements = achievements.get_index<"category"_n>();
+    auto ach_iter = cat_achievements.lower_bound(category_id);
+    while (ach_iter != cat_achievements.end()) {
+      cat_achievements.modify(ach_iter, maybe_charge_to(org_owner), [&]( auto& row ) {
+        row.category = 0;   // Placeholder for null
+      });
+      ach_iter++;
+    }
+
+    auto categories = get_categories(org_owner);
+    auto iter = categories.find(category_id);
+    check(iter != categories.end(), "Category not found!");
+    categories.erase(iter);
+  }
+
+
+  [[eosio::action]]
+  void addach(name org_owner, uint64_t org_id, string achievement_name) {
+    check_is_contract_or_owner(org_owner);
+
+    auto achievements = get_achievements(org_owner);
     achievements.emplace(maybe_charge_to(org_owner), [&](auto& row) {
-      row.key = achievements.available_primary_key();
+      row.key = achievements.available_primary_key() + 1;   // Reserve 0 to represent null
       row.org = org_id;
       row.achievement_name = achievement_name;
     });
   }
 
 
+  // Note: There is no `editach`. Owners can only retire an Achievement and
+  //  create new ones.
+
+
   [[eosio::action]]
   void retireach(name org_owner, uint64_t ach_id) {
-    check(has_auth(get_self()) || has_auth(org_owner), "Not authorized");
+    check_is_contract_or_owner(org_owner);
 
-    achievement_index achievements(get_self(), org_owner.value);
+    auto achievements = get_achievements(org_owner);
     auto iter = achievements.find(ach_id);
     check(iter != achievements.end(), "Achievement not found");
 
@@ -67,18 +118,89 @@ public:
 
 
   [[eosio::action]]
-  void grantach(name org_owner, uint64_t user_id, uint64_t achievement_id, uint64_t grantor_id) {
-    check(has_auth(get_self()) || has_auth(org_owner), "Not authorized");
+  void adduser(name org_owner, uint64_t org_id, string user_name) {
+    check_is_contract_or_owner(org_owner);
 
-    achievement_index achievements(get_self(), org_owner.value);
+    auto users = get_users(org_owner);
+
+    // Not going to check for dupes
+    users.emplace(maybe_charge_to(org_owner), [&](auto& row) {
+      row.key = users.available_primary_key() + 1;   // Reserve 0 to represent null
+      row.org = org_id;
+      row.user_name = user_name;
+    });
+  }
+
+
+  [[eosio::action]]
+  void edituser(name org_owner, uint64_t user_id, string user_name) {
+    check_is_contract_or_owner(org_owner);
+
+    auto users = get_users(org_owner);
+    auto iter = users.find(user_id);
+    check(iter != users.end(), "User not found!");
+
+    users.modify(iter, maybe_charge_to(org_owner), [&](auto& row) {
+      row.user_name = user_name;
+    });
+  }
+
+
+  [[eosio::action]]
+  void wipeuser(name org_owner, uint64_t user_id) {
+    edituser(org_owner, user_id, "");
+  }
+
+
+  [[eosio::action]]
+  void addgrantor(name org_owner, uint64_t org_id, string grantor_name) {
+    check_is_contract_or_owner(org_owner);
+
+    auto grantors = get_grantors(org_owner);
+
+    // Not going to check for dupes
+    grantors.emplace(maybe_charge_to(org_owner), [&](auto& row) {
+      row.key = grantors.available_primary_key() + 1;   // Reserve 0 to represent null
+      row.org = org_id;
+      row.grantor_name = grantor_name;
+      row.active = true;
+    });
+  }
+
+
+  [[eosio::action]]
+  void editgrantor(name org_owner, uint64_t grantor_id, string grantor_name, bool active) {
+    check_is_contract_or_owner(org_owner);
+
+    auto grantors = get_grantors(org_owner);
+    auto iter = grantors.find(grantor_id);
+    check(iter != grantors.end(), "Grantor not found!");
+
+    // Not going to check for dupes
+    grantors.modify(iter, maybe_charge_to(org_owner), [&](auto& row) {
+      row.grantor_name = grantor_name;
+      row.active = active;
+    });
+  }
+
+
+  [[eosio::action]]
+  void grantach(name org_owner, uint64_t user_id, uint64_t achievement_id, uint64_t grantor_id) {
+    check_is_contract_or_owner(org_owner);
+
+    auto achievements = get_achievements(org_owner);
     auto ach_iter = achievements.find(achievement_id);
     check(ach_iter != achievements.end(), "Achievement not found");
-
     check(ach_iter->active, "Achievement is not active");
 
-    userachievement_index userachievements(get_self(), org_owner.value);
+    auto grantors = get_grantors(org_owner);
+    auto gra_iter = grantors.find(grantor_id);
+    check(gra_iter != grantors.end(), "Grantor not found");
+    check(gra_iter->active, "Grantor is not active");
+
+    auto userachievements = get_userachievements(org_owner);
     userachievements.emplace(maybe_charge_to(org_owner), [&](auto& row) {
-      row.key = userachievements.available_primary_key();
+      row.key = userachievements.available_primary_key() + 1;   // Reserve 0 to represent null
       row.user = user_id;
       row.achievement = achievement_id;
       row.grantor = grantor_id;
@@ -90,15 +212,11 @@ public:
 
   [[eosio::action]]
   void revokeach(name org_owner, uint64_t userachievement_id) {
-    check(has_auth(get_self()) || has_auth(org_owner), "Not authorized");
+    check_is_contract_or_owner(org_owner);
 
-    userachievement_index userachievements(get_self(), org_owner.value);
+    auto userachievements = get_userachievements(org_owner);
     auto iter = userachievements.find(userachievement_id);
     check(iter != userachievements.end(), "UserAchievement not found");
-
-    achievement_index achievements(get_self(), org_owner.value);
-    auto ach_iter = achievements.find(iter->achievement);
-    check(ach_iter != achievements.end(), "Related Achievement not found");
 
     userachievements.modify(iter, maybe_charge_to(org_owner), [&]( auto& row ) {
       row.revoked = true;
@@ -118,6 +236,11 @@ private:
   };
   typedef eosio::multi_index<"orgs"_n, Organization> org_index;
 
+  org_index get_orgs(name org_owner) {
+    // tables all exist within each org_owner's scope
+    return org_index(get_self(), org_owner.value);
+  }
+
 
   struct [[eosio::table]] Category {
     uint64_t key;
@@ -126,6 +249,10 @@ private:
     uint64_t primary_key() const { return key; }
   };
   typedef eosio::multi_index<"categories"_n, Category> category_index;
+
+  category_index get_categories(name org_owner) {
+    return category_index(get_self(), org_owner.value);
+  }
 
 
   struct [[eosio::table]] Achievement {
@@ -140,6 +267,10 @@ private:
   typedef eosio::multi_index<"achievements"_n, Achievement,
     indexed_by<"category"_n, const_mem_fun<Achievement, uint64_t, &Achievement::get_category>>> achievement_index;
 
+  achievement_index get_achievements(name org_owner) {
+    return achievement_index(get_self(), org_owner.value);
+  }
+
 
   struct [[eosio::table]] User {
     uint64_t key;
@@ -149,16 +280,25 @@ private:
   };
   typedef eosio::multi_index<"users"_n, User> user_index;
 
+  user_index get_users(name org_owner) {
+    return user_index(get_self(), org_owner.value);
+  }
+
 
   struct [[eosio::table]] Grantor {
     uint64_t key;
     uint64_t org;
     string grantor_name;
+    bool active;
     uint64_t primary_key() const { return key; }
     uint64_t get_org() const { return org; }
   };
   typedef eosio::multi_index<"grantors"_n, Grantor,
     indexed_by<"org"_n, const_mem_fun<Grantor, uint64_t, &Grantor::get_org>>> grantor_index;
+
+  grantor_index get_grantors(name org_owner) {
+    return grantor_index(get_self(), org_owner.value);
+  }
 
 
   struct [[eosio::table]] UserAchievement {
@@ -176,10 +316,23 @@ private:
     indexed_by<"user"_n, const_mem_fun<UserAchievement, uint64_t, &UserAchievement::get_user>>,
     indexed_by<"achievement"_n, const_mem_fun<UserAchievement, uint64_t, &UserAchievement::get_achievement>>> userachievement_index;
 
+  userachievement_index get_userachievements(name org_owner) {
+    return userachievement_index(get_self(), org_owner.value);
+  }
 
-  name maybe_charge_to(name user) {
-    if (has_auth(user)) {
-      return user;
+
+/*****************************************************************************
+*  Utilities/Helpers
+*****************************************************************************/
+
+  void check_is_contract_or_owner(name org_owner) {
+    check(has_auth(get_self()) || has_auth(org_owner), "Not authorized");
+  }
+
+
+  name maybe_charge_to(name org_owner) {
+    if (has_auth(org_owner)) {
+      return org_owner;
     } else {
       return get_self();
     }
