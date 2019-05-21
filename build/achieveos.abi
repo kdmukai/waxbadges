@@ -26,6 +26,10 @@
                 {
                     "name": "active",
                     "type": "bool"
+                },
+                {
+                    "name": "json_data",
+                    "type": "string"
                 }
             ]
         },
@@ -43,6 +47,10 @@
                 },
                 {
                     "name": "category_name",
+                    "type": "string"
+                },
+                {
+                    "name": "json_data",
                     "type": "string"
                 }
             ]
@@ -62,6 +70,14 @@
                 {
                     "name": "grantor_name",
                     "type": "string"
+                },
+                {
+                    "name": "active",
+                    "type": "bool"
+                },
+                {
+                    "name": "json_data",
+                    "type": "string"
                 }
             ]
         },
@@ -75,6 +91,10 @@
                 },
                 {
                     "name": "org_name",
+                    "type": "string"
+                },
+                {
+                    "name": "json_data",
                     "type": "string"
                 }
             ]
@@ -93,6 +113,10 @@
                 },
                 {
                     "name": "user_name",
+                    "type": "string"
+                },
+                {
+                    "name": "json_data",
                     "type": "string"
                 }
             ]
@@ -120,6 +144,10 @@
                 {
                     "name": "revoked",
                     "type": "bool"
+                },
+                {
+                    "name": "json_data",
+                    "type": "string"
                 }
             ]
         },
@@ -142,6 +170,42 @@
             ]
         },
         {
+            "name": "addcat",
+            "base": "",
+            "fields": [
+                {
+                    "name": "org_owner",
+                    "type": "name"
+                },
+                {
+                    "name": "org_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "category_name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "addgrantor",
+            "base": "",
+            "fields": [
+                {
+                    "name": "org_owner",
+                    "type": "name"
+                },
+                {
+                    "name": "org_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "grantor_name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "addorg",
             "base": "",
             "fields": [
@@ -151,6 +215,100 @@
                 },
                 {
                     "name": "org_name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "adduser",
+            "base": "",
+            "fields": [
+                {
+                    "name": "org_owner",
+                    "type": "name"
+                },
+                {
+                    "name": "org_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "user_name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "editcat",
+            "base": "",
+            "fields": [
+                {
+                    "name": "org_owner",
+                    "type": "name"
+                },
+                {
+                    "name": "category_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "category_name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "editgrantor",
+            "base": "",
+            "fields": [
+                {
+                    "name": "org_owner",
+                    "type": "name"
+                },
+                {
+                    "name": "grantor_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "grantor_name",
+                    "type": "string"
+                },
+                {
+                    "name": "active",
+                    "type": "bool"
+                }
+            ]
+        },
+        {
+            "name": "editorg",
+            "base": "",
+            "fields": [
+                {
+                    "name": "org_owner",
+                    "type": "name"
+                },
+                {
+                    "name": "org_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "org_name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "edituser",
+            "base": "",
+            "fields": [
+                {
+                    "name": "org_owner",
+                    "type": "name"
+                },
+                {
+                    "name": "user_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "user_name",
                     "type": "string"
                 }
             ]
@@ -173,6 +331,20 @@
                 },
                 {
                     "name": "grantor_id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "removecat",
+            "base": "",
+            "fields": [
+                {
+                    "name": "org_owner",
+                    "type": "name"
+                },
+                {
+                    "name": "category_id",
                     "type": "uint64"
                 }
             ]
@@ -206,7 +378,7 @@
             ]
         },
         {
-            "name": "updateorg",
+            "name": "wipeuser",
             "base": "",
             "fields": [
                 {
@@ -214,12 +386,8 @@
                     "type": "name"
                 },
                 {
-                    "name": "org_id",
+                    "name": "user_id",
                     "type": "uint64"
-                },
-                {
-                    "name": "org_name",
-                    "type": "string"
                 }
             ]
         }
@@ -231,13 +399,53 @@
             "ricardian_contract": ""
         },
         {
+            "name": "addcat",
+            "type": "addcat",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "addgrantor",
+            "type": "addgrantor",
+            "ricardian_contract": ""
+        },
+        {
             "name": "addorg",
             "type": "addorg",
             "ricardian_contract": ""
         },
         {
+            "name": "adduser",
+            "type": "adduser",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "editcat",
+            "type": "editcat",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "editgrantor",
+            "type": "editgrantor",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "editorg",
+            "type": "editorg",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "edituser",
+            "type": "edituser",
+            "ricardian_contract": ""
+        },
+        {
             "name": "grantach",
             "type": "grantach",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "removecat",
+            "type": "removecat",
             "ricardian_contract": ""
         },
         {
@@ -251,8 +459,8 @@
             "ricardian_contract": ""
         },
         {
-            "name": "updateorg",
-            "type": "updateorg",
+            "name": "wipeuser",
+            "type": "wipeuser",
             "ricardian_contract": ""
         }
     ],

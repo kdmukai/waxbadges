@@ -232,6 +232,7 @@ private:
   struct [[eosio::table]] Organization {
     uint64_t key;
     string org_name;
+    string json_data;
     uint64_t primary_key() const { return key; }
   };
   typedef eosio::multi_index<"orgs"_n, Organization> org_index;
@@ -246,6 +247,7 @@ private:
     uint64_t key;
     uint64_t org;
     string category_name;
+    string json_data;
     uint64_t primary_key() const { return key; }
   };
   typedef eosio::multi_index<"categories"_n, Category> category_index;
@@ -261,6 +263,7 @@ private:
     uint64_t category;
     string achievement_name;
     bool active;
+    string json_data;
     uint64_t primary_key() const { return key; }
     uint64_t get_category() const { return category; }
   };
@@ -276,6 +279,7 @@ private:
     uint64_t key;
     uint64_t org;
     string user_name;
+    string json_data;
     uint64_t primary_key() const { return key; }
   };
   typedef eosio::multi_index<"users"_n, User> user_index;
@@ -290,6 +294,7 @@ private:
     uint64_t org;
     string grantor_name;
     bool active;
+    string json_data;
     uint64_t primary_key() const { return key; }
     uint64_t get_org() const { return org; }
   };
@@ -308,6 +313,7 @@ private:
     uint64_t grantor;
     // time_point_sec timestamp;
     bool revoked;
+    string json_data;
     uint64_t primary_key() const { return key; }
     uint64_t get_user() const { return user; }
     uint64_t get_achievement() const { return achievement; }
