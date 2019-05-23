@@ -48,7 +48,80 @@ The additional RAM costs of that storage on the EOS blockchain is up to each pro
 However, it likely makes more sense to take a hybrid approach: Store the bare minimum for posterity in Achieveos but have additional, richer data in a standard database.
 
 
-## Running Tests
+## Running locally
+Start kleos and nodeos:
+```
+keosd &
+nodeos -e -p eosio \
+  --plugin eosio::producer_plugin \
+  --plugin eosio::chain_api_plugin \
+  --plugin eosio::http_plugin \
+  --plugin eosio::history_plugin \
+  --plugin eosio::history_api_plugin \
+  --access-control-allow-origin='*' \
+  --contracts-console \
+  --http-validate-host=false \
+  --verbose-http-errors >> /dev/null 2>&1 &
+```
+
+Compile the smart contract:
+
+```
+eosio-cpp -o achieveos.wasm achieveos.cpp --abigen
+```
+
+Create initial dev wallet, save the password:
+```
+cleos wallet create --to-console
+
+Creating wallet: default
+Save password to use in the future to unlock this wallet.
+Without password imported keys will not be retrievable.
+"PW5Kewn9L76X8Fpd....................t42S9XCw2"
+```
+
+Open and unlock the wallet:
+```
+cleos wallet open
+cleos wallet unlock
+```
+
+Create keys and copy public key:
+```
+cleos wallet create_key
+
+> Created new private key with a public key of: "EOS8PEJ5FM42xLpHK...X6PymQu97KrGDJQY5Y"
+```
+
+Import the default dev 'eosio' key:
+```
+cleos wallet import
+
+> private key: 5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3
+```
+
+Create test accounts:
+```
+cleos create account eosio bob EOSyourpublickeyfromabove
+cleos create account eosio alice EOSyourpublickeyfromabove
+```
+
+Create the contract account:
+```
+cleos create account eosio achieveos EOSyourpublickeyfromabove -p eosio@active
+```
+
+Deploy the compiled contract:
+```
+cleos set contract achieveos /path/to/contracts/achieveos -p achieveos@active
+```
+
+Push some basic smart contract actions:
+```
+cleos push action achieveos addorg '["alice", "Alice's Awesome Organization!"]' -p alice@active
+```
+
+## Running tests
 Requirements:
 * nodeos
 * cleos

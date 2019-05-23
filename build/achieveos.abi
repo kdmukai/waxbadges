@@ -12,7 +12,7 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "org",
+                    "name": "organization",
                     "type": "uint64"
                 },
                 {
@@ -42,7 +42,7 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "org",
+                    "name": "organization",
                     "type": "uint64"
                 },
                 {
@@ -64,7 +64,7 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "org",
+                    "name": "organization",
                     "type": "uint64"
                 },
                 {
@@ -90,7 +90,7 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "org_name",
+                    "name": "organization_name",
                     "type": "string"
                 },
                 {
@@ -108,7 +108,7 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "org",
+                    "name": "organization",
                     "type": "uint64"
                 },
                 {
@@ -118,36 +118,10 @@
                 {
                     "name": "json_data",
                     "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "UserAchievement",
-            "base": "",
-            "fields": [
-                {
-                    "name": "key",
-                    "type": "uint64"
                 },
                 {
-                    "name": "user",
-                    "type": "uint64"
-                },
-                {
-                    "name": "achievement",
-                    "type": "uint64"
-                },
-                {
-                    "name": "grantor",
-                    "type": "uint64"
-                },
-                {
-                    "name": "revoked",
-                    "type": "bool"
-                },
-                {
-                    "name": "json_data",
-                    "type": "string"
+                    "name": "achievements",
+                    "type": "uint64[]"
                 }
             ]
         },
@@ -160,7 +134,11 @@
                     "type": "name"
                 },
                 {
-                    "name": "org_id",
+                    "name": "organization_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "category_id",
                     "type": "uint64"
                 },
                 {
@@ -178,7 +156,7 @@
                     "type": "name"
                 },
                 {
-                    "name": "org_id",
+                    "name": "organization_id",
                     "type": "uint64"
                 },
                 {
@@ -196,7 +174,7 @@
                     "type": "name"
                 },
                 {
-                    "name": "org_id",
+                    "name": "organization_id",
                     "type": "uint64"
                 },
                 {
@@ -214,7 +192,7 @@
                     "type": "name"
                 },
                 {
-                    "name": "org_name",
+                    "name": "organization_name",
                     "type": "string"
                 }
             ]
@@ -228,7 +206,7 @@
                     "type": "name"
                 },
                 {
-                    "name": "org_id",
+                    "name": "organization_id",
                     "type": "uint64"
                 },
                 {
@@ -286,11 +264,11 @@
                     "type": "name"
                 },
                 {
-                    "name": "org_id",
+                    "name": "organization_id",
                     "type": "uint64"
                 },
                 {
-                    "name": "org_name",
+                    "name": "organization_name",
                     "type": "string"
                 }
             ]
@@ -336,20 +314,6 @@
             ]
         },
         {
-            "name": "removecat",
-            "base": "",
-            "fields": [
-                {
-                    "name": "org_owner",
-                    "type": "name"
-                },
-                {
-                    "name": "category_id",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
             "name": "retireach",
             "base": "",
             "fields": [
@@ -359,20 +323,6 @@
                 },
                 {
                     "name": "ach_id",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "revokeach",
-            "base": "",
-            "fields": [
-                {
-                    "name": "org_owner",
-                    "type": "name"
-                },
-                {
-                    "name": "userachievement_id",
                     "type": "uint64"
                 }
             ]
@@ -444,18 +394,8 @@
             "ricardian_contract": ""
         },
         {
-            "name": "removecat",
-            "type": "removecat",
-            "ricardian_contract": ""
-        },
-        {
             "name": "retireach",
             "type": "retireach",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "revokeach",
-            "type": "revokeach",
             "ricardian_contract": ""
         },
         {
@@ -489,13 +429,6 @@
         {
             "name": "orgs",
             "type": "Organization",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "userachs",
-            "type": "UserAchievement",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
