@@ -4,80 +4,16 @@
     "types": [],
     "structs": [
         {
-            "name": "Achievement",
-            "base": "",
-            "fields": [
-                {
-                    "name": "key",
-                    "type": "uint64"
-                },
-                {
-                    "name": "organization",
-                    "type": "uint64"
-                },
-                {
-                    "name": "category",
-                    "type": "uint64"
-                },
-                {
-                    "name": "achievement_name",
-                    "type": "string"
-                },
-                {
-                    "name": "active",
-                    "type": "bool"
-                },
-                {
-                    "name": "json_data",
-                    "type": "string"
-                }
-            ]
-        },
-        {
             "name": "Category",
             "base": "",
             "fields": [
                 {
-                    "name": "key",
-                    "type": "uint64"
-                },
-                {
-                    "name": "organization",
-                    "type": "uint64"
-                },
-                {
-                    "name": "category_name",
+                    "name": "name",
                     "type": "string"
                 },
                 {
-                    "name": "json_data",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "Grantor",
-            "base": "",
-            "fields": [
-                {
-                    "name": "key",
-                    "type": "uint64"
-                },
-                {
-                    "name": "organization",
-                    "type": "uint64"
-                },
-                {
-                    "name": "grantor_name",
-                    "type": "string"
-                },
-                {
-                    "name": "active",
-                    "type": "bool"
-                },
-                {
-                    "name": "json_data",
-                    "type": "string"
+                    "name": "achievements",
+                    "type": "string[]"
                 }
             ]
         },
@@ -94,8 +30,12 @@
                     "type": "string"
                 },
                 {
-                    "name": "json_data",
-                    "type": "string"
+                    "name": "categories",
+                    "type": "Category[]"
+                },
+                {
+                    "name": "users",
+                    "type": "User[]"
                 }
             ]
         },
@@ -104,24 +44,12 @@
             "base": "",
             "fields": [
                 {
-                    "name": "key",
-                    "type": "uint64"
-                },
-                {
-                    "name": "organization",
-                    "type": "uint64"
-                },
-                {
-                    "name": "user_name",
+                    "name": "name",
                     "type": "string"
                 },
                 {
-                    "name": "json_data",
-                    "type": "string"
-                },
-                {
-                    "name": "achievements",
-                    "type": "uint64[]"
+                    "name": "userachievements",
+                    "type": "pair_uint64_uint64[][]"
                 }
             ]
         },
@@ -166,24 +94,6 @@
             ]
         },
         {
-            "name": "addgrantor",
-            "base": "",
-            "fields": [
-                {
-                    "name": "org_owner",
-                    "type": "name"
-                },
-                {
-                    "name": "organization_id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "grantor_name",
-                    "type": "string"
-                }
-            ]
-        },
-        {
             "name": "addorg",
             "base": "",
             "fields": [
@@ -216,46 +126,6 @@
             ]
         },
         {
-            "name": "editcat",
-            "base": "",
-            "fields": [
-                {
-                    "name": "org_owner",
-                    "type": "name"
-                },
-                {
-                    "name": "category_id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "category_name",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "editgrantor",
-            "base": "",
-            "fields": [
-                {
-                    "name": "org_owner",
-                    "type": "name"
-                },
-                {
-                    "name": "grantor_id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "grantor_name",
-                    "type": "string"
-                },
-                {
-                    "name": "active",
-                    "type": "bool"
-                }
-            ]
-        },
-        {
             "name": "editorg",
             "base": "",
             "fields": [
@@ -274,24 +144,6 @@
             ]
         },
         {
-            "name": "edituser",
-            "base": "",
-            "fields": [
-                {
-                    "name": "org_owner",
-                    "type": "name"
-                },
-                {
-                    "name": "user_id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "user_name",
-                    "type": "string"
-                }
-            ]
-        },
-        {
             "name": "grantach",
             "base": "",
             "fields": [
@@ -300,7 +152,15 @@
                     "type": "name"
                 },
                 {
+                    "name": "organization_id",
+                    "type": "uint64"
+                },
+                {
                     "name": "user_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "category_id",
                     "type": "uint64"
                 },
                 {
@@ -309,34 +169,6 @@
                 },
                 {
                     "name": "grantor_id",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "retireach",
-            "base": "",
-            "fields": [
-                {
-                    "name": "org_owner",
-                    "type": "name"
-                },
-                {
-                    "name": "ach_id",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "wipeuser",
-            "base": "",
-            "fields": [
-                {
-                    "name": "org_owner",
-                    "type": "name"
-                },
-                {
-                    "name": "user_id",
                     "type": "uint64"
                 }
             ]
@@ -354,11 +186,6 @@
             "ricardian_contract": ""
         },
         {
-            "name": "addgrantor",
-            "type": "addgrantor",
-            "ricardian_contract": ""
-        },
-        {
             "name": "addorg",
             "type": "addorg",
             "ricardian_contract": ""
@@ -369,73 +196,20 @@
             "ricardian_contract": ""
         },
         {
-            "name": "editcat",
-            "type": "editcat",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "editgrantor",
-            "type": "editgrantor",
-            "ricardian_contract": ""
-        },
-        {
             "name": "editorg",
             "type": "editorg",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "edituser",
-            "type": "edituser",
             "ricardian_contract": ""
         },
         {
             "name": "grantach",
             "type": "grantach",
             "ricardian_contract": ""
-        },
-        {
-            "name": "retireach",
-            "type": "retireach",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "wipeuser",
-            "type": "wipeuser",
-            "ricardian_contract": ""
         }
     ],
     "tables": [
         {
-            "name": "achievements",
-            "type": "Achievement",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "categories",
-            "type": "Category",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "grantors",
-            "type": "Grantor",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
             "name": "orgs",
             "type": "Organization",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "users",
-            "type": "User",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
