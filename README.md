@@ -65,7 +65,6 @@ nodeos -e -p eosio \
 ```
 
 Compile the smart contract:
-
 ```
 eosio-cpp -o achieveos.wasm achieveos.cpp --abigen
 ```
@@ -118,8 +117,21 @@ cleos set contract achieveos /path/to/contracts/achieveos -p achieveos@active
 
 Push some basic smart contract actions:
 ```
-cleos push action achieveos addorg '["alice", "Alice's Awesome Organization!"]' -p alice@active
+cleos push action achieveos addorg '["alice", "Awesome Organization"]' -p alice@active
 ```
+
+## Cleanup / Resetting
+To stop kleos and nodeos:
+```
+pkill -SIGTERM nodeos
+pkill -SIGTERM keosd
+```
+
+To reset the local chain's wallets:
+```
+rm -rf ~/eosio-wallet
+```
+
 
 ## Running tests
 Requirements:

@@ -6,6 +6,9 @@
 *.lo
 *.o
 *.obj
+build/
+/*.wasm
+/*.abi
 
 # Precompiled Headers
 *.gch
