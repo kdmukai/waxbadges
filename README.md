@@ -6,10 +6,13 @@ An open platform for Achievements/Badges/Trophies that will be preserved forever
 
 ## Motivation
 ### Achievements should have permanence
-Current achievement systems are completely siloed in their own ecosystems (e.g. XBox Live gamertag, high school sports records, certifications for tech or skills training, etc) and therefore suffer from varying levels of impermanence and fragility. I can work hard to unlock a new badge in my running app ("50-Mile Club!"), but if that service shuts down, all of my badges go with it. The town secretary might be keeping track of each annual Hot Dog Eating Contest winner, but the next administration could easily lose those records as personnel change.
+Current achievement systems are completely siloed in their own ecosystems--XBox gamertag, individual mobile games, Steam trophies, even certifications for tech or skills training (e.g. Khan Academy badges). Because of this they all suffer from varying levels of impermanence and fragility. I can work hard to unlock a new badge in my running app ("50-Mile Club!"), but if that service shuts down, all of my badges go with it.
+
+### Achievements should be accessible outside of their ecosystem
+Even if there was a sense of reasonable permanence for my achievements--XBox Live probably isn't going to disappear tomorrow--I shouldn't have to go to each individual ecosystem or sign into each individual app to see them. But there's currently no way to view my accomplishments from Steam alongside all my mobile game achievements and everywhere else all in one place.
 
 ### Enter the blockchain
-Blockchains are as close to immutable, permanent digital storage as we're ever going to get. Writing achievements to the blockchain will preserve them regardless of what happens to the organization or company that originally granted the achievement/trophy/badge.
+Blockchains are as close to immutable, permanent digital storage as we're ever going to get. Writing achievements to the blockchain will preserve them regardless of what happens to the organization or company that originally granted the achievement/trophy/badge. And once they're written to a public blockchain it's simple to view all of them in one grand trophy room, share any of them out to social media, etc. Permanence + unified public access.
 
 ## Achieveos overview
 Achieveos is an EOS smart contract that provides a simple, open platform for any permanent achievement system to be built upon. It is structured as a series of simple tables that have database-like relationships.
