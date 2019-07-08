@@ -136,10 +136,10 @@ public:
               uint32_t category_id,
               string achievement_name,
               string description,
-              string asseturl) {
+              string assetname) {
     check_is_contract_or_owner(org_owner);
 
-    validateAsseturl(asseturl);
+    validateAssetname(assetname);
 
     auto orgs_table = get_orgs_table_for(org_owner);
     auto orgs_iter = orgs_table.find(organization_id);
@@ -153,7 +153,7 @@ public:
     Achievement achievement;
     achievement.name = achievement_name;
     achievement.description = description;
-    achievement.asseturl = asseturl;
+    achievement.assetname = assetname;
     achievement.active = true;
 
     orgs_table.modify(orgs_iter, maybe_charge_to(org_owner), [&](auto& org) {
@@ -162,8 +162,8 @@ public:
   }
 
 
-  void validateAsseturl(string asseturl) {
-    check(asseturl.find(" ") == string::npos, "Invalid asseturl");
+  void validateAssetname(string assetname) {
+    check(assetname.find(" ") == string::npos, "Invalid assetname");
   }
 
 
@@ -179,10 +179,10 @@ public:
                 uint32_t achievement_id,
                 string achievement_name,
                 string description,
-                string asseturl) {
+                string assetname) {
     check_is_contract_or_owner(org_owner);
 
-    validateAsseturl(asseturl);
+    validateAssetname(assetname);
 
     auto orgs_table = get_orgs_table_for(org_owner);
     auto orgs_iter = orgs_table.find(organization_id);
@@ -204,7 +204,7 @@ public:
       auto achievement = org.categories[category_id].achievements[achievement_id];
       achievement.name = achievement_name;
       achievement.description = description;
-      achievement.asseturl = asseturl;
+      achievement.assetname = assetname;
     });
   }
 
@@ -285,8 +285,8 @@ public:
     Meant for possible GDPR, etc compliance issues.
   **/
   [[eosio::action]]
-  void wipeusername(name org_owner, uint32_t organization_id, uint32_t user_id) {
-    edituser(org_owner, organization_id, user_id, "");
+  void wipeusername(name org_owner, uint32_t organization_id, uint32_t user_id, string userid) {
+    edituser(org_owner, organization_id, user_id, "", userid);
   }
 
 
@@ -321,24 +321,24 @@ public:
     check(user_id < orgs_iter->users.size(), "User not found");
 
     // Cannot claim an already claimed User
-    check(org.users[user_id].account == "", "User has already been claimed");
+    check(orgs_iter->users[user_id].account == "", "User has already been claimed");
 
     orgs_table.modify(orgs_iter, maybe_charge_to(org_owner), [&](auto& org) {
-      org.users[user_id].account = user_account;
+      org.users[user_id].account = user_account.to_string();
     });
   }
 
 
   /**
   **/
-  void isapproved(name org_owner, uint32_t organization_id, uint32_t user_id) {
+  bool isapproved(name org_owner, uint32_t organization_id, uint32_t user_id) {
     auto orgs_table = get_orgs_table_for(org_owner);
     auto orgs_iter = orgs_table.find(organization_id);
     check(orgs_iter != orgs_table.end(), "Organization not found");
 
     check(user_id < orgs_iter->users.size(), "User not found");
 
-    return org.users[user_id].account != "";
+    return orgs_iter->users[user_id].account != "";
   }
 
 
@@ -362,15 +362,14 @@ public:
     check(user_id < orgs_iter->users.size(), "User not found");
 
     // Claim must already be approved for this account
-    check(org.users[user_id].account == user_account, "User claim has not been approved");
+    check(orgs_iter->users[user_id].account == user_account.to_string(), "User claim has not been approved");
 
     auto myachieveos_table = get_myachieveos_table_for(user_account);
 
     // Make sure the user_account hasn't already claimed this User
     for (auto iter = myachieveos_table.begin(); iter != myachieveos_table.end(); iter++) {
       check(
-          iter->organization_id != organization_id &&
-          iter->user_id != user_id,
+        (iter->organization_id != organization_id && iter->user_id != user_id),
         "Already claimed this User");
     }
 
@@ -378,7 +377,7 @@ public:
     // user_account pays for RAM.
     myachieveos_table.emplace(user_account, [&](auto& entry) {
       entry.key = myachieveos_table.available_primary_key();
-      entry.org_owner = org_owner;
+      entry.org_owner = org_owner.to_string();
       entry.organization_id = organization_id;
       entry.user_id = user_id;
     });
@@ -465,7 +464,7 @@ private:
   struct User {
     string name;
     string userid;  // org's internal identifier for this user; can be empty string.
-    name account;   // The EOS account that has claimed this user entry, if any.
+    string account;   // The EOS account that has claimed this user entry, if any. Must be a normal string rather than an eosio::name
     map<uint32_t, UserAchievementsList> bycategory;
   };
 
@@ -498,10 +497,10 @@ private:
     uint32_t organization_id;
     uint32_t user_id;
     uint32_t primary_key() const { return key; }
-  }
+  };
   typedef eosio::multi_index<"myachieveos"_n, MyAchieveos> myachieveos_multi_index;   // EOS table names must be <= 12 chars
 
-  orgs_multi_index get_myachieveos_table_for(name account) {
+  myachieveos_multi_index get_myachieveos_table_for(name account) {
     return myachieveos_multi_index(get_self(), account.value);
   }
 

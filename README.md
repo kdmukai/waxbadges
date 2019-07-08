@@ -9,15 +9,15 @@ An open platform for Achievements/Badges/Trophies that will be preserved forever
 Current achievement systems are completely siloed in their own ecosystems--XBox gamertag, individual mobile games, Steam trophies, even certifications for tech or skills training (e.g. Khan Academy badges). Because of this they all suffer from varying levels of impermanence and fragility. I can work hard to unlock a new badge in my running app ("50-Mile Club!"), but if that service shuts down, all of my badges go with it.
 
 ### Achievements should be accessible outside of their ecosystem
-Even if there was a sense of reasonable permanence for my achievements--XBox Live probably isn't going to disappear tomorrow--I shouldn't have to go to each individual ecosystem or sign into each individual app to see them. But there's currently no way to view my accomplishments from Steam alongside all my mobile game achievements and everywhere else all in one place.
+I shouldn't have to go to each individual ecosystem or sign into each individual app to see and share my achievements. But there's currently no way to view my accomplishments from Steam alongside all my mobile game achievements and everywhere else all in one place.
 
 ### Enter the blockchain
-Blockchains are as close to immutable, permanent digital storage as we're ever going to get. Writing achievements to the blockchain will preserve them regardless of what happens to the organization or company that originally granted the achievement/trophy/badge. And once they're written to a public blockchain it's simple to view all of them in one grand trophy room, share any of them out to social media, etc. Permanence + unified public access.
+Blockchains are as close to immutable, permanent digital storage as we're going to get. Writing achievements to the blockchain will preserve them regardless of what happens to the organization or company that originally granted the achievement/trophy/badge. And once they're written to a public blockchain it's simple to view all of them in one grand trophy room, share any of them out to social media, etc. Permanence + unified public access.
 
 ## Achieveos overview
-Achieveos is an EOS smart contract that provides a simple, open platform for any permanent achievement system to be built upon. It is structured as a series of simple tables that have database-like relationships.
+Achieveos is an EOS smart contract that provides a simple, open platform for any permanent achievement system to be built upon.
 
-But because smart contracts are cumbersome to directly interact with, it's expected that richer web apps will be built on top of the Achieveos functionality. Think of Achieveos as the backend database.
+But because smart contracts are cumbersome to directly interact with, it's expected that richer web apps will be built on top of the Achieveos functionality. Think of Achieveos as a kind of services-rich backend database (AaaS? Achievements as a Service).
 
 The first demonstration web app, eternalbadge.com (coming soon), will be an example of how the Achieveos smart contract can be used. The smart contract details will be totally hidden away from the users; they won't need to know anything about blockchains to be able to use the site. But crucially, should eternalbadge.com ever shut down, all of the achievements managed through the site will live on forever on the EOS blockchain.
 
@@ -25,30 +25,30 @@ It's the best of both worlds: A user-friendly UI but with permanently accessible
 
 In fact, a future site could leverage the exact same data and provide a new UI. Users could pick up right where they left off (well, sort of) and carry on in this "new" world.
 
+### Easy onboarding; "custodial" achievements
+A big hurdle with blockchain-based users is the overly complex onboarding process: converting fiat to crypto; setting up access to those funds via tools like Metamask, Scatter, etc; generating and signing transactions to interact with a smart contract. This is just not a reasonable expectation yet for the vast majority of users.
+
+So instead each project can add their own users as simple `string` blockchain data (`name=Keith01`, `userid=your_internal_id_1234`) and immediately start granting achievements to that user. The achievements are written to the blockchain but in this case the user has not yet asserted any control over their gamer identity nor claimed ownership of their achievements. In a sense their achievements are held _in custody_ on their behalf.
+
+
+### Claiming ownership; unify achievements
+If a user has the interest and the savvy to create their own blockchain account, the system has a mechanism for them to claim their user identity in each vendor's achievement ecosystem.
+
+Once claimed it is then possible for the user to view all of their achievements across all their gaming ecosystems in one place via an achievement-aware block explorer.
+
+
 ### Structure
-You start by creating your **Organization** which will define its own achievements and grant them to its members or users. It could be a new gaming app where players can unlock trophies for completing challenges. Or a local sports team that will track its season records. Or a school's National Honor Society that will log its new inductees and other honors.
+You start by creating your **Organization** which will define its own achievements and grant them to its members or users.
 
-Next you define whatever achievement **Categories** make sense for your Organization. The football team might want to separate their achievements for the season by "Offense", "Defense", and "Special Teams" records.
+Next you define whatever achievement **Categories** make sense for your game or app. Maybe you want to distinguish between "Trophies" vs "Badges" or "Solo" vs "Team" achievements.
 
-And finally you add **Achievements** within those Categories. "Longest Touchdown" would be an "Offense" record held by an individual wide receiver. "Most Sacks" would be a "Defense" season record. "Longest Field Goal" for "Special Teams".
+Finally you add your **Achievements** within those Categories. "Ran 10 miles" could be a "Solo" training badge.
 
-Or for a gaming context maybe there's a "Challenge Badges" Category for achievements like "Killed 100 Beasts in 1 Round". The same game might also have a "League Trophies" Category for "Won an 8-Player Tournament".
+### Note: Blockchain storage can be expensive
+The structure above writes the bare minimum data to the blockchain to minimize expenses while still ensuring that the data is human-readable. Each Achievement does have an optional `description` field so you can provide more details about the accomplishment, but this is best kept as short as possible.
 
-### Blockchain storage is expensive
-The structure above writes the bare minimum data to the blockchain to minimize expenses while still ensuring that the data is human-readable.
-
-Projects built on top of Achieveos are free to store more data via the optional `json_data` field in each struct. For example, you could include the url for an icon asset for a given Achievement and perhaps a longer description:
-
-```
-json_data = {
-  "icon": "https://somewhere/dir/someimage.png",
-  "details": "This honor is awarded to the individual who demonstrates..."
-}
-```
-
-The additional RAM costs of that storage on the EOS blockchain is up to each project or user to manage.
-
-However, it likely makes more sense to take a hybrid approach: Store the bare minimum for posterity in Achieveos but have additional, richer data in a standard database.
+### Assets
+Images for each achievement are probably too much data to store on the blockchain. So instead each Organization specifies an `assetbaseurl` (e.g. "mydomainname.com/images/trophies") and then each Achievement has an `assetname` (e.g. "500_kills.png"). In this way we strike a compromise between providing nicely rendered achievement browsing without burdening game studios with excessive blockchain storage costs.
 
 
 ## Running locally

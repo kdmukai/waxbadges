@@ -1,5 +1,6 @@
 import argparse
 import sys
+import time
 import unittest
 
 from eosfactory.eosf import *
@@ -11,10 +12,13 @@ CONTRACT_WORKSPACE = "achieveos"
 
 # Actors of the test:
 MASTER = MasterAccount()
-HOST = Account()
-ALICE = Account()
-CAROL = Account()
+CONTRACT = Account()
+STUDIOA = Account()
+STUDIOB = Account()
 BOB = Account()
+CAROL = Account()
+DAVE = Account()
+ELLEN = Account()
 
 skip_recompile = False
 
@@ -30,15 +34,15 @@ class Test(unittest.TestCase):
         create_master_account("MASTER")
 
         COMMENT("Create test accounts:")
-        create_account("ALICE", MASTER)
-        create_account("CAROL", MASTER)
+        create_account("STUDIOA", MASTER)
+        create_account("STUDIOB", MASTER)
         create_account("BOB", MASTER)
 
 
     def test_0001_deploy(self):
         COMMENT("Create, build and deploy the contract:")
-        create_account("HOST", MASTER)
-        smart = Contract(HOST, CONTRACT_WORKSPACE)
+        create_account("CONTRACT", MASTER)
+        smart = Contract(CONTRACT, CONTRACT_WORKSPACE)
         if not skip_recompile:
             smart.build()
         smart.deploy()
@@ -47,34 +51,36 @@ class Test(unittest.TestCase):
     def test_0100_account_create_org(self):
         COMMENT("Should allow an EOS account to create an Organization")
         organization_name = "Tournament of Champions"
-        ALICE.info()
-        HOST.push_action(
+        STUDIOA.info()
+        CONTRACT.push_action(
             "addorg",
             {
-                "org_owner": ALICE,
-                "organization_name": organization_name
+                "org_owner": STUDIOA,
+                "organization_name": organization_name,
+                "assetbaseurl": "somedomainname.com/imgs/trophies"
             },
-            permission=(ALICE, Permission.ACTIVE)
+            permission=(STUDIOA, Permission.ACTIVE)
         )
 
-        table = HOST.table("orgs", ALICE)
+        table = CONTRACT.table("orgs", STUDIOA)
         self.assertEqual(table.json["rows"][0]["name"], organization_name)
-        ALICE.info()
+        STUDIOA.info()
 
 
     def test_0101_contract_create_org(self):
         COMMENT("Should allow the contract owner to create an Organization on behalf of org_owner")
-        organization_name = "Some Other Alice Org"
-        HOST.push_action(
+        organization_name = "Some Other STUDIOA Org"
+        CONTRACT.push_action(
             "addorg",
             {
-                "org_owner": ALICE,
-                "organization_name": organization_name
+                "org_owner": STUDIOA,
+                "organization_name": organization_name,
+                "assetbaseurl": "someotherdomainname.com/assets"
             },
-            permission=(HOST, Permission.ACTIVE)
+            permission=(CONTRACT, Permission.ACTIVE)
         )
 
-        table = HOST.table("orgs", ALICE)
+        table = CONTRACT.table("orgs", STUDIOA)
         self.assertEqual(table.json["rows"][1]["name"], organization_name)
 
 
@@ -82,13 +88,14 @@ class Test(unittest.TestCase):
         COMMENT("Should throw an exception when creating an Organization with an existing name")
         organization_name = "Tournament of Champions"
         with self.assertRaises(Exception) as e:
-            HOST.push_action(
+            CONTRACT.push_action(
                 "addorg",
                 {
-                    "org_owner": ALICE,
-                    "organization_name": organization_name
+                    "org_owner": STUDIOA,
+                    "organization_name": organization_name,
+                    "assetbaseurl": "someotherdomainname.com/assets"
                 },
-                permission=(ALICE, Permission.ACTIVE)
+                permission=(STUDIOA, Permission.ACTIVE)
             )
 
         err_msg = str(e.exception)
@@ -99,11 +106,12 @@ class Test(unittest.TestCase):
         COMMENT("Should not allow a different account to create an Organization on behalf of org_owner")
         organization_name = "Not Allowed Org"
         with self.assertRaises(Exception) as e:
-            HOST.push_action(
+            CONTRACT.push_action(
                 "addorg",
                 {
-                    "org_owner": ALICE,
-                    "organization_name": organization_name
+                    "org_owner": STUDIOA,
+                    "organization_name": organization_name,
+                    "assetbaseurl": "someotherdomainname.com/assets"
                 },
                 permission=(BOB, Permission.ACTIVE)
             )
@@ -115,21 +123,22 @@ class Test(unittest.TestCase):
     def test_0120_account_create_separate_org(self):
         COMMENT("Should allow a different EOS account to create its own isolated Organization")
         organization_name = "A Totally Different Org"
-        HOST.push_action(
+        CONTRACT.push_action(
             "addorg",
             {
-                "org_owner": BOB,
-                "organization_name": organization_name
+                "org_owner": STUDIOB,
+                "organization_name": organization_name,
+                "assetbaseurl": "yetanotherdomainname.com/static"
             },
-            permission=(BOB, Permission.ACTIVE)
+            permission=(STUDIOB, Permission.ACTIVE)
         )
 
-        # Because of the table scope, Bob's Org will also have index 0
-        table = HOST.table("orgs", BOB)
+        # Because of the table scope, STUDIOB's Org will also have index 0
+        table = CONTRACT.table("orgs", STUDIOB)
         self.assertEqual(table.json["rows"][0]["name"], organization_name)
 
-        # While Alice still has her Orgs in her own table scope
-        table = HOST.table("orgs", ALICE)
+        # While STUDIOA still has her Orgs in her own table scope
+        table = CONTRACT.table("orgs", STUDIOA)
         self.assertTrue(table.json["rows"][0]["name"] != organization_name)
 
 
@@ -137,17 +146,17 @@ class Test(unittest.TestCase):
     def test_0200_account_create_category(self):
         COMMENT("Should allow an EOS account to create a Category in its Organization")
         category_name = "First Category"
-        HOST.push_action(
+        CONTRACT.push_action(
             "addcat",
             {
-                "org_owner": ALICE,
+                "org_owner": STUDIOA,
                 "organization_id": 0,
                 "category_name": category_name
             },
-            permission=(ALICE, Permission.ACTIVE)
+            permission=(STUDIOA, Permission.ACTIVE)
         )
 
-        table = HOST.table("orgs", ALICE)
+        table = CONTRACT.table("orgs", STUDIOA)
         self.assertEqual(table.json["rows"][0]["categories"][0]["name"], category_name)
 
 
@@ -155,36 +164,40 @@ class Test(unittest.TestCase):
     def test_0300_account_create_achievement(self):
         COMMENT("Should allow an EOS account to create an Achievement")
         achievement_name = "Ate 40 Hot Dogs in 10 Minutes"
-        HOST.push_action(
+        CONTRACT.push_action(
             "addach",
             {
-                "org_owner": ALICE,
+                "org_owner": STUDIOA,
                 "organization_id": 0,
                 "category_id": 0,
-                "achievement_name": achievement_name
+                "achievement_name": achievement_name,
+                "description": "",
+                "assetname": "hotdog.png"
             },
-            permission=(ALICE, Permission.ACTIVE)
+            permission=(STUDIOA, Permission.ACTIVE)
         )
 
-        table = HOST.table("orgs", ALICE)
+        table = CONTRACT.table("orgs", STUDIOA)
         self.assertEqual(table.json["rows"][0]["categories"][0]["achievements"][0]["name"], achievement_name)
 
 
     def test_0310_account_create_another_achievement(self):
         COMMENT("Should allow an EOS account to create an Achievement")
         achievement_name = "Slept For 16 Hours"
-        HOST.push_action(
+        CONTRACT.push_action(
             "addach",
             {
-                "org_owner": ALICE,
+                "org_owner": STUDIOA,
                 "organization_id": 0,
                 "category_id": 0,
-                "achievement_name": achievement_name
+                "achievement_name": achievement_name,
+                "description": "",
+                "assetname": "sleepy.png"
             },
-            permission=(ALICE, Permission.ACTIVE)
+            permission=(STUDIOA, Permission.ACTIVE)
         )
 
-        table = HOST.table("orgs", ALICE)
+        table = CONTRACT.table("orgs", STUDIOA)
         self.assertEqual(table.json["rows"][0]["categories"][0]["achievements"][1]["name"], achievement_name)
 
 
@@ -192,70 +205,56 @@ class Test(unittest.TestCase):
     def test_0400_account_create_user(self):
         COMMENT("Should allow an EOS account to create a User")
         user_name = "Josh U"
-        HOST.push_action(
+        CONTRACT.push_action(
             "adduser",
             {
-                "org_owner": ALICE,
+                "org_owner": STUDIOA,
                 "organization_id": 0,
-                "user_name": user_name
+                "user_name": user_name,
+                "userid": "123abc"
             },
-            permission=(ALICE, Permission.ACTIVE)
+            permission=(STUDIOA, Permission.ACTIVE)
         )
 
-        table = HOST.table("orgs", ALICE)
+        table = CONTRACT.table("orgs", STUDIOA)
         self.assertEqual(table.json["rows"][0]["users"][0]["name"], user_name)
-
-
-
-    def test_0500_account_create_grantor(self):
-        COMMENT("Should allow an EOS account to create a Grantor")
-        grantor_name = "Coach Banzai"
-        HOST.push_action(
-            "addgrantor",
-            {"org_owner": ALICE, "organization_id": 0, "grantor_name": grantor_name},
-            permission=(ALICE, Permission.ACTIVE)
-        )
-
-        table = HOST.table("orgs", ALICE)
-        self.assertEqual(table.json["rows"][0]["grantors"][0]["name"], grantor_name)
-
 
 
     def test_0600_account_grant_achievement(self):
         COMMENT("Should allow an EOS account to grant a User an Achievement")
-        HOST.push_action(
+        CONTRACT.push_action(
             "grantach",
             {
-                "org_owner": ALICE,
+                "org_owner": STUDIOA,
                 "organization_id": 0,
                 "user_id": 0,
                 "category_id": 0,
                 "achievement_id": 0,
-                "grantor_id": 0
+                "timestamp": round(time.time())
             },
-            permission=(ALICE, Permission.ACTIVE)
+            permission=(STUDIOA, Permission.ACTIVE)
         )
 
-        table = HOST.table("orgs", ALICE)
+        table = CONTRACT.table("orgs", STUDIOA)
         self.assertEqual(table.json["rows"][0]["users"][0]["bycategory"][0]["value"]["userachievements"][0]["achievement_id"], 0)
 
 
     def test_0610_account_grant_another_achievement(self):
         COMMENT("Should allow an EOS account to grant a User an Achievement")
-        HOST.push_action(
+        CONTRACT.push_action(
             "grantach",
             {
-                "org_owner": ALICE,
+                "org_owner": STUDIOA,
                 "organization_id": 0,
                 "user_id": 0,
                 "category_id": 0,
                 "achievement_id": 1,
-                "grantor_id": 0
+                "timestamp": round(time.time())
             },
-            permission=(ALICE, Permission.ACTIVE)
+            permission=(STUDIOA, Permission.ACTIVE)
         )
 
-        table = HOST.table("orgs", ALICE)
+        table = CONTRACT.table("orgs", STUDIOA)
         self.assertEqual(table.json["rows"][0]["users"][0]["bycategory"][0]["value"]["userachievements"][1]["achievement_id"], 1)
 
 
