@@ -1,15 +1,21 @@
-#include <eosio/eosio.hpp>
-// #include <eosio/time.hpp>
+#include <eosiolib/eosio.hpp>
 
 using namespace eosio;
 using namespace std;
 
-class [[eosio::contract("achieveos")]] achieveos : public eosio::contract {
+inline void check(bool pred, const char* msg) {
+   if (!pred) {
+      eosio_assert(false, msg);
+   }
+}
+
+class [[eosio::contract("achieveos")]] achieveos : public contract {
 public:
   using contract::contract;
 
   // Constructor
-  achieveos(name receiver, name code,  datastream<const char*> ds): contract(receiver, code, ds) {}
+  achieveos(name receiver, name code,  datastream<const char*> ds)
+    : contract(receiver, code, ds) {}
 
 
 
@@ -201,10 +207,9 @@ public:
     check_name_is_unique(achievements, achievement_name);
 
     orgs_table.modify(orgs_iter, maybe_charge_to(org_owner), [&](auto& org) {
-      auto achievement = org.categories[category_id].achievements[achievement_id];
-      achievement.name = achievement_name;
-      achievement.description = description;
-      achievement.assetname = assetname;
+      org.categories[category_id].achievements[achievement_id].name = achievement_name;
+      org.categories[category_id].achievements[achievement_id].description = description;
+      org.categories[category_id].achievements[achievement_id].assetname = assetname;
     });
   }
 
@@ -413,20 +418,6 @@ public:
   }
 
 
-  // [[eosio::action]]
-  // void revokeach(name org_owner, uint32_t userachievement_id) {
-  //   check_is_contract_or_owner(org_owner);
-  //
-  //   auto userachievements = get_userachievements(org_owner);
-  //   auto orgs_iter = userachievements.find(userachievement_id);
-  //   check(orgs_iter != userachievements.end(), "UserAchievement not found");
-  //
-  //   userachievements.modify(orgs_iter, maybe_charge_to(org_owner), [&]( auto& org ) {
-  //     org.revoked = true;
-  //   });
-  // }
-
-
 
 private:
   // All tables will be created in each org_owner's scope to prevent any possible
@@ -537,7 +528,8 @@ private:
   }
 
 
-
-
-
 };
+
+
+EOSIO_DISPATCH( achieveos, (addorg)(editorg)(addcat)(editcat)(addach)(editach)(retireach)(adduser)(edituser)(wipeusername)(approveclaim)(claimuser)(grantach) )
+

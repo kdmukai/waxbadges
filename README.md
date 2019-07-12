@@ -50,6 +50,12 @@ The structure above writes the bare minimum data to the blockchain to minimize e
 ### Assets
 Images for each achievement are probably too much data to store on the blockchain. So instead each Organization specifies an `assetbaseurl` (e.g. "mydomainname.com/images/trophies") and then each Achievement has an `assetname` (e.g. "500_kills.png"). In this way we strike a compromise between providing nicely rendered achievement browsing without burdening game studios with excessive blockchain storage costs.
 
+## WAX notes
+Must compile with `eosio.cdt` v1.4.1. Install via Homebrew:
+```
+brew unlink eosio.cdt
+brew install https://raw.githubusercontent.com/EOSIO/homebrew-eosio.cdt/e6fc339b845219d8bc472b7a4ad0c146bd33752a/eosio.cdt.rb
+```
 
 ## Running locally
 Start kleos and nodeos:
