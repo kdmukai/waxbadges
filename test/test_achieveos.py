@@ -404,12 +404,12 @@ class Test(unittest.TestCase):
                     "user_id": user_id,
                     "user_account": BOB
                 },
-                permission=(BOB, Permission.ACTIVE)
+                permission=(BOB, Permission.ACTIVE),
+                force_unique=True
             )
 
         err_msg = str(e.exception)
         self.assertTrue("Already claimed this User" in err_msg, err_msg)
-
 
 
     def test_0860_unapproved_account_claim_user_fails(self):
