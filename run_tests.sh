@@ -1,1 +1,1 @@
-python test/test_achieveos.py -s
+python test/test_waxbadge.py -s

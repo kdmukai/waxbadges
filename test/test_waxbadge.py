@@ -8,7 +8,7 @@ from eosfactory.eosf import *
 
 verbosity([Verbosity.INFO, Verbosity.OUT, Verbosity.TRACE, Verbosity.DEBUG])
 
-CONTRACT_WORKSPACE = "achieveos"
+CONTRACT_WORKSPACE = "waxbadge"
 
 # Actors of the test:
 MASTER = MasterAccount()
@@ -385,7 +385,7 @@ class Test(unittest.TestCase):
             permission=(BOB, Permission.ACTIVE)
         )
 
-        table = CONTRACT.table("myachieveos", BOB)
+        table = CONTRACT.table("mywaxbadges", BOB)
         self.assertEqual(table.json["rows"][0]["org_owner"], STUDIOA.name)
         self.assertEqual(table.json["rows"][0]["organization_id"], 0)
         self.assertEqual(table.json["rows"][0]["user_id"], user_id)
@@ -459,7 +459,7 @@ class Test(unittest.TestCase):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="""
-        This is a unit test for the achieveos smart contract.
+        This is a unit test for the 'waxbadge' smart contract.
     """)
 
     parser.add_argument(

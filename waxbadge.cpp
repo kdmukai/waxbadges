@@ -9,12 +9,12 @@ inline void check(bool pred, const char* msg) {
    }
 }
 
-class [[eosio::contract("achieveos")]] achieveos : public contract {
+class [[eosio::contract("waxbadge")]] waxbadge : public contract {
 public:
   using contract::contract;
 
   // Constructor
-  achieveos(name receiver, name code,  datastream<const char*> ds)
+  waxbadge(name receiver, name code,  datastream<const char*> ds)
     : contract(receiver, code, ds) {}
 
 
@@ -301,9 +301,9 @@ public:
   *****************************************************************************/
   /**
     The organization owner can authorize its users to "claim" their own User
-    entry and link it to the user's EOS account. Logic and permissions around
+    entry and link it to the user's WAX account. Logic and permissions around
     claim approvals are entirely up to the organization owner; this contract
-    does not do any validation on which EOS accounts should or shouldn't be
+    does not do any validation on which WAX accounts should or shouldn't be
     linked to which Users.
 
     The organization owner must first `approveclaim` below and then the user
@@ -312,7 +312,7 @@ public:
     Once approved, the organization owner cannot change the linked account.
 
     TODO: Maybe allow users to transfer their own claims to another account via
-    a similar `approve` step that would happen in their MyAchieveos entry.
+    a similar `approve` step that would happen in their MyWaxBadges entry.
   **/
   [[eosio::action]]
   void approveclaim(name org_owner, uint32_t organization_id, uint32_t user_id, name user_account) {
@@ -369,19 +369,19 @@ public:
     // Claim must already be approved for this account
     check(orgs_iter->users[user_id].account == user_account.to_string(), "User claim has not been approved");
 
-    auto myachieveos_table = get_myachieveos_table_for(user_account);
+    auto mywaxbadge_table = get_mywaxbadge_table_for(user_account);
 
     // Make sure the user_account hasn't already claimed this User
-    for (auto iter = myachieveos_table.begin(); iter != myachieveos_table.end(); iter++) {
+    for (auto iter = mywaxbadge_table.begin(); iter != mywaxbadge_table.end(); iter++) {
       check(
         (iter->organization_id != organization_id && iter->user_id != user_id),
         "Already claimed this User");
     }
 
-    // Add the MyAchieveos entry in the account's namespace.
+    // Add the MyWaxBadges entry in the account's namespace.
     // user_account pays for RAM.
-    myachieveos_table.emplace(user_account, [&](auto& entry) {
-      entry.key = myachieveos_table.available_primary_key();
+    mywaxbadge_table.emplace(user_account, [&](auto& entry) {
+      entry.key = mywaxbadge_table.available_primary_key();
       entry.org_owner = org_owner.to_string();
       entry.organization_id = organization_id;
       entry.user_id = user_id;
@@ -446,7 +446,7 @@ private:
     uint32_t timestamp;   // Unix timestamp
   };
 
-  // Only a separate struct because EOS can't handle directly nested collections
+  // Only a separate struct because WAX can't handle directly nested collections
   struct UserAchievementsList {
     vector<UserAchievement> userachievements;
   };
@@ -454,13 +454,13 @@ private:
   struct User {
     string name;
     string userid;  // org's internal identifier for this user; can be empty string.
-    string account;   // The EOS account that has claimed this user entry, if any. Must be a normal string rather than an eosio::name
+    string account;   // The WAX account that has claimed this user entry, if any. Must be a normal string rather than an eosio::name
     map<uint32_t, UserAchievementsList> bycategory;
   };
 
 
   /**
-    The ONE and ONLY table that gets written to EOS storage!
+    The ONE and ONLY table that gets written to WAX storage!
   **/
   struct [[eosio::table]] Organization {
     uint32_t key;
@@ -470,7 +470,7 @@ private:
     vector<User> users;
     uint32_t primary_key() const { return key; }
   };
-  typedef eosio::multi_index<"orgs"_n, Organization> orgs_multi_index;   // EOS table names must be <= 12 chars
+  typedef eosio::multi_index<"orgs"_n, Organization> orgs_multi_index;   // WAX table names must be <= 12 chars
 
   orgs_multi_index get_orgs_table_for(name org_owner) {
     return orgs_multi_index(get_self(), org_owner.value);
@@ -481,17 +481,17 @@ private:
     One additional table so claimed users can quickly identify their various
     Achieveos User entries and associated UserAchievements.
   **/
-  struct [[eosio::table]] MyAchieveos {
+  struct [[eosio::table]] MyWaxBadges {
     uint32_t key;
     string org_owner;   // Data resides in org_owner's storage scope
     uint32_t organization_id;
     uint32_t user_id;
     uint32_t primary_key() const { return key; }
   };
-  typedef eosio::multi_index<"myachieveos"_n, MyAchieveos> myachieveos_multi_index;   // EOS table names must be <= 12 chars
+  typedef eosio::multi_index<"mywaxbadges"_n, MyWaxBadges> mywaxbadges_multi_index;   // WAX table names must be <= 12 chars
 
-  myachieveos_multi_index get_myachieveos_table_for(name account) {
-    return myachieveos_multi_index(get_self(), account.value);
+  mywaxbadges_multi_index get_mywaxbadge_table_for(name account) {
+    return mywaxbadges_multi_index(get_self(), account.value);
   }
 
 
@@ -530,5 +530,5 @@ private:
 };
 
 
-EOSIO_DISPATCH( achieveos, (addorg)(editorg)(addcat)(editcat)(addach)(editach)(retireach)(adduser)(edituser)(wipeusername)(approveclaim)(claimuser)(grantach) )
+EOSIO_DISPATCH( waxbadge, (addorg)(editorg)(addcat)(editcat)(addach)(editach)(retireach)(adduser)(edituser)(wipeusername)(approveclaim)(claimuser)(grantach) )
 
