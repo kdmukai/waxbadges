@@ -420,8 +420,7 @@ public:
 
 
 private:
-  // All tables will be created in each org_owner's scope to prevent any possible
-  //  data intermixing with other org_owners' Organizations.
+  // All tables will be created in each org_owner's scope.
 
   /**
     An org_owner can run multiple Organizations, each of which will have their
