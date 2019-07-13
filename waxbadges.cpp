@@ -9,12 +9,12 @@ inline void check(bool pred, const char* msg) {
    }
 }
 
-class [[eosio::contract("waxbadge")]] waxbadge : public contract {
+class [[eosio::contract("waxbadges")]] waxbadges : public contract {
 public:
   using contract::contract;
 
   // Constructor
-  waxbadge(name receiver, name code,  datastream<const char*> ds)
+  waxbadges(name receiver, name code,  datastream<const char*> ds)
     : contract(receiver, code, ds) {}
 
 
@@ -530,5 +530,5 @@ private:
 };
 
 
-EOSIO_DISPATCH( waxbadge, (addorg)(editorg)(addcat)(editcat)(addach)(editach)(retireach)(adduser)(edituser)(wipeusername)(approveclaim)(claimuser)(grantach) )
+EOSIO_DISPATCH( waxbadges, (addorg)(editorg)(addcat)(editcat)(addach)(editach)(retireach)(adduser)(edituser)(wipeusername)(approveclaim)(claimuser)(grantach) )
 

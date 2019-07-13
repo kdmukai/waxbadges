@@ -8,7 +8,7 @@ from eosfactory.eosf import *
 
 verbosity([Verbosity.INFO, Verbosity.OUT, Verbosity.TRACE, Verbosity.DEBUG])
 
-CONTRACT_WORKSPACE = "waxbadge"
+CONTRACT_WORKSPACE = "waxbadges"
 
 # Actors of the test:
 MASTER = MasterAccount()
@@ -459,7 +459,7 @@ class Test(unittest.TestCase):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="""
-        This is a unit test for the 'waxbadge' smart contract.
+        This is a unit test for the 'waxbadges' smart contract.
     """)
 
     parser.add_argument(

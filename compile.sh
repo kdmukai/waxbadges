@@ -1,4 +1,4 @@
-eosio-cpp -o waxbadge.wasm waxbadge.cpp --abigen
+eosio-cpp -o waxbadges.wasm waxbadges.cpp --abigen
 mkdir -p build
-cp waxbadge.wasm build/.
-cp waxbadge.abi build/.
+cp waxbadges.wasm build/.
+cp waxbadges.abi build/.
