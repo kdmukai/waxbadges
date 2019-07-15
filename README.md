@@ -1,7 +1,8 @@
+### Achievements logged on the blockchain for eternity! Keep what you earn!
+
 ![waxbadges](assets/waxbadges_logo_1700x350.png)
 # WAXBadges
-
-An open platform for Achievements that will be preserved forever on the WAX blockchain.
+_An open Achievements platform for the WAX blockchain_
 
 
 ## Motivation
