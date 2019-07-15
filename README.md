@@ -1,5 +1,5 @@
 ![waxbadges](assets/waxbadges_logo_1700x350.png)
-# WaxBadges
+# WAXBadges
 
 An open platform for Achievements that will be preserved forever on the WAX blockchain.
 
@@ -16,32 +16,34 @@ This siloing has another bad consequence: my achievements suffer from varying le
 The blockchain offers permanent, public online data storage. Writing achievements to the blockchain will preserve them regardless of what happens to the company that originally granted them. And once your achievements are written to the blockchain it'll be simple to view them all--across all your games--in one grand trophy room and share them out to social media.
 
 
-## WaxBadges overview
-WaxBadges is a WAX smart contract that provides a simple, open platform for any permanent achievement system to be built upon. Think of WaxBadges as a kind of backend service (AaaS -- Achievements as a Service?) that handles storage, permissions logic, management, and more. This allows game developers to easily write their users' achievements as WaxBadges to the WAX blockchain. Their players will be extra-excited to stay engaged with their games as they see their in-game achievements now accessible in one central location.
+## WAXBadges overview
+WAXBadges is a WAX smart contract that provides a simple, open platform for any permanent achievement system to be built upon. Think of WAXBadges as a kind of backend service (AaaS -- Achievements as a Service?) that handles storage, permissions logic, management, and more. This allows game developers to easily write their users' achievements as WAXBadges to the WAX blockchain. Their players will be extra-excited to stay engaged with their games as they see their in-game achievements now accessible in one central location.
 
 The smart contract details will be totally hidden away from the players; they won't need to know anything about blockchains to be able to unlock and view achievements. 
+
+WAXBadges also supports achievements that can be limited in quantity to provide enhanced exclusivity and greater player engagement as they race to be the early few who are able to claim a rare, limited achievement. _Coming soon_
 
 
 ### Easy onboarding; "custodial" achievements
 A big hurdle with blockchain-based user data systems is the overly complex onboarding process: would-be users have to convert fiat to crypto; set up access to those funds via tools like Metamask, Scatter, etc; and be comfortable signing transactions and managing their private/public keys. This is just not a reasonable expectation for 99% of gamers.
 
-So instead WaxBadges allows each project to add their users without worrying about whether or not the user has an on-chain account. Gamers' account records exist as simple `string` blockchain data based solely on the game's internal records (`name=Keith01`, `userid=your_internal_id_1234`). The studio can then immediately start granting achievements to their users. At this stage these blockchain user achievements can be thought of as being held _in custody_ on their users' behalf.
+So instead WAXBadges allows each project to add their users without worrying about whether or not the user has an on-chain account. Gamers' account records exist as simple `string` blockchain data based solely on the game's internal records (`name=Keith01`, `userid=your_internal_id_1234`). The studio can then immediately start granting achievements to their users. At this stage these blockchain user achievements can be thought of as being held _in custody_ on their users' behalf.
 
 But for more advanced users...
 
 ### Claim ownership; unify achievements
-If a user has the interest and the savvy to create their own blockchain account, WaxBadges provides a mechanism for them to claim their user identity in each studio's achievement ecosystem. This then allows them to view all of their achievements--across all participating games, studios, and platforms--in one place.
+If a user has the interest and the savvy to create their own blockchain account, WAXBadges provides a mechanism for them to claim their user identity in each studio's achievement ecosystem. This then allows them to view all of their achievements--across all participating games, studios, and platforms--in one place.
 
 In brief:
 * Each studio would provide an option for a user to specify their blockchain account in their in-game profile.
 * The studio would write this additional info to the gamer's `User` record on chain.
-* The gamer can then submit a transaction to the WaxBadges smart contract to "claim" each `User` entry and permanently tie them to their blockchain account.
+* The gamer can then submit a transaction to the WAXBadges smart contract to "claim" each `User` entry and permanently tie them to their blockchain account.
 
-After the claims are made it is then simple for a gamer to view all of their WaxBadges achievements in one place via an WaxBadges-aware block explorer.
+After the claims are made it is then simple for a gamer to view all of their WAXBadges achievements in one place via an WAXBadges-aware block explorer.
 
 
 ### Structure
-The basic organizational structure of WaxBadges achievements is pretty simple:
+The basic organizational structure of WAXBadges achievements is pretty simple:
 ```
     Ecosystem: "Banzai's Great Adventure"
     |
@@ -60,13 +62,13 @@ The basic organizational structure of WaxBadges achievements is pretty simple:
          +----Achievement: "Da GOAT"
 ```
 
-Each individual game would create its own **Ecosystem** entry. _Note that WaxBadges doesn't have to be limited to just gaming use cases. An `Ecosystem` could be created for academic awards (e.g. a high school's NHS inductees), records for a sports team, certifications for a training system, etc._
+Each individual game would create its own **Ecosystem** entry. _Note that WAXBadges doesn't have to be limited to just gaming use cases. An `Ecosystem` could be created for academic awards (e.g. a high school's NHS inductees), records for a sports team, certifications for a training system, etc._
 
 A game studio creates a new `Ecosystem` in two simple steps:
 * Create a blockchain account for their studio (or a separate account for each game they produce).
-* Submit a simple transaction from that account to the WaxBadges smart contract to create a new `Ecosystem` entry.
+* Submit a simple transaction from that account to the WAXBadges smart contract to create a new `Ecosystem` entry.
 
-The WaxBadges smart contract ensures that the studio's blockchain account is the only one that can then alter any of the data within that new `Ecosystem`.
+The WAXBadges smart contract ensures that the studio's blockchain account is the only one that can then alter any of the data within that new `Ecosystem`.
 
 They are then free to define whatever achievement **Categories** make sense for their game. _Note: at least one `Category` is required, but it can be a generic catch-all if the studio doesn't need different categories._
 
@@ -91,6 +93,12 @@ In this way we strike a compromise between providing nicely rendered achievement
 
 
 # Technical Notes
+
+## Achievements are not NFTs
+The WAX blockchain is focused on its NFT (Non-Fungible Token) marketplace for digital collectibles like OpsSkins. Once an NFT is purchased on the marketplace the owner has the option to resell it as s/he sees fit.
+
+But achievements have different properties, the primary one being that they must be non-transferrable. Either you earned the achievement or you didn't; there's no buying your way into achievement bragging rights.
+
 
 ## Blockchain storage costs
 The structure above was carefully designed to minimize blockchain storage costs. There are _**numerous**_ pitfalls when storing data to the blockchain that could prove _**very**_ costly if done poorly.
@@ -123,7 +131,7 @@ _WAX also has their own v1.4.1 `eosio.cdt` release [here](https://github.com/wor
 
 
 ### Supported versions
-WaxBadges compiles with `eosio.cdt` v1.4.1.
+WAXBadges compiles with `eosio.cdt` v1.4.1.
 
 Tests run successfully against the latest `eosio` node (currently v1.8.1).
 
@@ -254,11 +262,15 @@ rm -rf ~/eosio-wallet
 
 
 # TODO / Future Features
-* Simple WaxBadges-aware block explorer to view achievements:
+* Achievements with limited quantities.
+
+* Simple WAXBadges-aware block explorer to view achievements:
     * Browse by `Ecosystem`; see the possible `Achievements`, how many people were granted each `Achievement`
     * Browse by `User` in each `Ecosystem`; see which `Achievements` they were granted.
     * Browse by gamer's blockchain account; see their unified `Achievements` across all linked `Ecosystems`.
     * Social media sharing.
+
+* Basic demonstration webapp with simple tasks users can complete to earn achievements.
 
 * Add support for a points system for each `Achievement`, point totals for `User`s?
 
