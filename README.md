@@ -7,7 +7,7 @@ An open platform for Achievements that will be preserved forever on the WAX bloc
 ## Motivation
 Current achievement systems are completely trapped within their own ecosystems--XBox gamertags, each individual mobile app, Steam trophies, even certifications for tech or skills training (e.g. Khan Academy badges).
 
-I shouldn't have to go to each individual ecosystem or sign into each individual app to see and share my achievements. But there's currently no way to view my accomplishments from, say, Steam alongside all my mobile game achievements and everywhere other game all in one place.
+I shouldn't have to go to each individual ecosystem or sign into each individual app to see and share my achievements. But there's currently no way to view my accomplishments from, say, Steam alongside all my mobile game achievements and every other game all in one place.
 
 This siloing has another bad consequence: my achievements suffer from varying levels of impermanence and fragility. I can work my tail off to unlock a new badge in my running app ("50-Mile Club!") but if that service shuts down, poof! My badge goes with it.
 
