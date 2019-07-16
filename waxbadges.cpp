@@ -28,13 +28,14 @@ public:
 
     validateAssetbaseurl(assetbaseurl);
 
-    auto ecosystems_table = get_ecosystems_table_for(ecosystem_owner);
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
     for (auto iter = ecosystems_table.begin(); iter != ecosystems_table.end(); iter++) {
       check(iter->name != ecosystem_name, "Ecosystem is not unique");
     }
 
     ecosystems_table.emplace(maybe_charge_to(ecosystem_owner), [&](auto& org) {
       org.key = ecosystems_table.available_primary_key();
+      org.account = ecosystem_owner;
       org.name = ecosystem_name;
       org.assetbaseurl = assetbaseurl;  // may be empty string
     });
@@ -55,13 +56,16 @@ public:
 
     validateAssetbaseurl(assetbaseurl);
 
-    auto ecosystems_table = get_ecosystems_table_for(ecosystem_owner);
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
     auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
     check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
 
     for (auto iter = ecosystems_table.begin(); iter != ecosystems_table.end(); iter++) {
       check(iter->name != ecosystem_name, "Ecosystem is not unique");
     }
+
+    // The ecosystem_owner must match the Ecosystem.account to make changes
+    check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
 
     ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& org) {
       org.name = ecosystem_name;
@@ -78,9 +82,12 @@ public:
   void addcat(name ecosystem_owner, uint32_t ecosystem_id, string category_name) {
     check_is_contract_or_owner(ecosystem_owner);
 
-    auto ecosystems_table = get_ecosystems_table_for(ecosystem_owner);
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
     auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
     check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
+
+    // The ecosystem_owner must match the Ecosystem.account to make changes
+    check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
 
     check_name_is_unique(ecosystems_iter->categories, category_name);
 
@@ -97,9 +104,12 @@ public:
   void editcat(name ecosystem_owner, uint32_t ecosystem_id, uint32_t category_id, string category_name) {
     check_is_contract_or_owner(ecosystem_owner);
 
-    auto ecosystems_table = get_ecosystems_table_for(ecosystem_owner);
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
     auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
     check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
+
+    // The ecosystem_owner must match the Ecosystem.account to make changes
+    check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
 
     check(category_id < ecosystems_iter->categories.size(), "Category not found");
     check_name_is_unique(ecosystems_iter->categories, category_name);
@@ -142,14 +152,18 @@ public:
               uint32_t category_id,
               string achievement_name,
               string description,
-              string assetname) {
+              string assetname,
+              uint32_t maxquantity) {
     check_is_contract_or_owner(ecosystem_owner);
 
     validateAssetname(assetname);
 
-    auto ecosystems_table = get_ecosystems_table_for(ecosystem_owner);
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
     auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
     check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
+
+    // The ecosystem_owner must match the Ecosystem.account to make changes
+    check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
 
     check(category_id < ecosystems_iter->categories.size(), "Category not found");
 
@@ -160,6 +174,7 @@ public:
     achievement.name = achievement_name;
     achievement.description = description;
     achievement.assetname = assetname;
+    achievement.maxquantity = maxquantity;
     achievement.active = true;
 
     ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& org) {
@@ -185,14 +200,18 @@ public:
                 uint32_t achievement_id,
                 string achievement_name,
                 string description,
-                string assetname) {
+                string assetname,
+                uint32_t maxquantity) {
     check_is_contract_or_owner(ecosystem_owner);
 
     validateAssetname(assetname);
 
-    auto ecosystems_table = get_ecosystems_table_for(ecosystem_owner);
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
     auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
     check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
+
+    // The ecosystem_owner must match the Ecosystem.account to make changes
+    check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
 
     check(category_id < ecosystems_iter->categories.size(), "Category not found");
 
@@ -210,6 +229,7 @@ public:
       org.categories[category_id].achievements[achievement_id].name = achievement_name;
       org.categories[category_id].achievements[achievement_id].description = description;
       org.categories[category_id].achievements[achievement_id].assetname = assetname;
+      org.categories[category_id].achievements[achievement_id].maxquantity = maxquantity;
     });
   }
 
@@ -225,9 +245,12 @@ public:
   void retireach(name ecosystem_owner, uint32_t ecosystem_id, uint32_t category_id, uint32_t achievement_id) {
     check_is_contract_or_owner(ecosystem_owner);
 
-    auto ecosystems_table = get_ecosystems_table_for(ecosystem_owner);
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
     auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
     check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
+
+    // The ecosystem_owner must match the Ecosystem.account to make changes
+    check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
 
     check(category_id < ecosystems_iter->categories.size(), "Category not found");
 
@@ -252,9 +275,12 @@ public:
     user.name = user_name;
     user.userid = userid;
 
-    auto ecosystems_table = get_ecosystems_table_for(ecosystem_owner);
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
     auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
     check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
+
+    // The ecosystem_owner must match the Ecosystem.account to make changes
+    check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
 
     check_name_is_unique(ecosystems_iter->users, user_name);
 
@@ -268,9 +294,12 @@ public:
   void edituser(name ecosystem_owner, uint32_t ecosystem_id, uint32_t user_id, string user_name, string userid) {
     check_is_contract_or_owner(ecosystem_owner);
 
-    auto ecosystems_table = get_ecosystems_table_for(ecosystem_owner);
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
     auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
     check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
+
+    // The ecosystem_owner must match the Ecosystem.account to make changes
+    check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
 
     check(user_id < ecosystems_iter->users.size(), "User not found");
 
@@ -310,18 +339,17 @@ public:
     must submit a `claimuser` and pay for the additional RAM themselves.
 
     Once approved, the organization owner cannot change the linked account.
-
-    TODO: Maybe allow users to transfer their own claims to another account via
-    a similar `approve` step that would happen in their MyWaxBadges entry.
   **/
   [[eosio::action]]
   void approveclaim(name ecosystem_owner, uint32_t ecosystem_id, uint32_t user_id, name user_account) {
-    // Only the ecosystem_owner can approve User claims
-    check(has_auth(ecosystem_owner), "Not authorized");
+    check_is_contract_or_owner(ecosystem_owner);
 
-    auto ecosystems_table = get_ecosystems_table_for(ecosystem_owner);
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
     auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
     check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
+
+    // The ecosystem_owner must match the Ecosystem.account to make changes
+    check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
 
     check(user_id < ecosystems_iter->users.size(), "User not found");
 
@@ -334,33 +362,21 @@ public:
   }
 
 
-  /**
-  **/
-  bool isapproved(name ecosystem_owner, uint32_t ecosystem_id, uint32_t user_id) {
-    auto ecosystems_table = get_ecosystems_table_for(ecosystem_owner);
-    auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
-    check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
-
-    check(user_id < ecosystems_iter->users.size(), "User not found");
-
-    return ecosystems_iter->users[user_id].account != "";
-  }
-
 
   /**
     Executed by the User after the ecosystem_owner has completed the `approveclaim`
     step above. If the calling user_account doesn't match the approved
     User.account set above, the claim will fail.
 
-    This will add a MyAchievements entry into the User's own storage
-    namespace scope. They will pay the RAM themsevles.
+    This will add a MyAchievements entry for the User's claim. They will pay
+    the RAM themselves.
   **/
   [[eosio::action]]
-  void claimuser(name ecosystem_owner, uint32_t ecosystem_id, uint32_t user_id, name user_account) {
+  void claimuser(uint32_t ecosystem_id, uint32_t user_id, name user_account) {
     // Transaction must be sent by the user_account
     check(has_auth(user_account), "Not authorized");
 
-    auto ecosystems_table = get_ecosystems_table_for(ecosystem_owner);
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
     auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
     check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
 
@@ -369,7 +385,7 @@ public:
     // Claim must already be approved for this account
     check(ecosystems_iter->users[user_id].account == user_account.to_string(), "User claim has not been approved");
 
-    auto mywaxbadge_table = get_mywaxbadge_table_for(user_account);
+    auto mywaxbadge_table = get_mywaxbadge_table_for(get_self());
 
     // Make sure the user_account hasn't already claimed this User
     for (auto iter = mywaxbadge_table.begin(); iter != mywaxbadge_table.end(); iter++) {
@@ -382,7 +398,7 @@ public:
     // user_account pays for RAM.
     mywaxbadge_table.emplace(user_account, [&](auto& entry) {
       entry.key = mywaxbadge_table.available_primary_key();
-      entry.ecosystem_owner = ecosystem_owner.to_string();
+      entry.account = user_account;
       entry.ecosystem_id = ecosystem_id;
       entry.user_id = user_id;
     });
@@ -397,14 +413,20 @@ public:
   void grantach(name ecosystem_owner, uint32_t ecosystem_id, uint32_t user_id, uint32_t category_id, uint32_t achievement_id, uint32_t timestamp) {
     check_is_contract_or_owner(ecosystem_owner);
 
-    auto ecosystems_table = get_ecosystems_table_for(ecosystem_owner);
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
     auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
     check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
+
+    // The ecosystem_owner must match the Ecosystem.account to make changes
+    check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
 
     check(user_id < ecosystems_iter->users.size(), "User not found");
     check(category_id < ecosystems_iter->categories.size(), "Category not found");
     check(achievement_id < ecosystems_iter->categories[category_id].achievements.size(), "Achievement not found");
-    check(ecosystems_iter->categories[category_id].achievements[achievement_id].active, "Achievement is not active");
+
+    auto achievement = ecosystems_iter->categories[category_id].achievements[achievement_id];
+    check(achievement.active, "Achievement is not active");
+    check(achievement.maxquantity == 0 || achievement.usersgranted.size() < achievement.maxquantity, "Achievement max quantity has been reached");
 
     UserAchievement userachievement;
     userachievement.achievement_id = achievement_id;
@@ -419,8 +441,29 @@ public:
 
 
 
+
+  /*****************************************************************************
+  * CONTRACT MIGRATION/MANAGEMENT
+  *****************************************************************************/
+
+  /**
+    One-time cleanup step before schema change
+  **/
+  [[eosio::action]]
+  void wipetables() {
+    check(has_auth(get_self()), "Not authorized");
+
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
+    auto it = ecosystems_table.begin();
+    while (it != ecosystems_table.end()) {
+        it = ecosystems_table.erase(it);
+    }
+  }
+
+
+
 private:
-  // All tables will be created in each ecosystem_owner's scope.
+  // All tables will be created in the contract's scope
 
   /**
     An ecosystem_owner can run multiple Organizations, each of which will have their
@@ -432,6 +475,7 @@ private:
     string name;
     string description;
     string assetname;   // relative to the Org's assetbaseurl: "sometrophy.png" or "subdir/sometrophy.png"
+    uint32_t maxquantity;   // 0 == no max set
     bool active = true;
     vector<uint32_t> usersgranted;
   };
@@ -464,13 +508,21 @@ private:
   **/
   struct [[eosio::table]] Ecosystem {
     uint32_t key;
+    name account;
     string name;
     string assetbaseurl;  // e.g. "mydomain.com/img/trophies" (omit http/https)
     vector<Category> categories;
     vector<User> users;
     uint32_t primary_key() const { return key; }
+    uint64_t get_secondary_1() const { return account.value;}
   };
-  typedef eosio::multi_index<"ecosystems"_n, Ecosystem> ecosystems_multi_index;   // WAX table names must be <= 12 chars
+  typedef eosio::multi_index<
+    "ecosystems"_n, Ecosystem, indexed_by<
+      "byaccount"_n, const_mem_fun<
+        Ecosystem, uint64_t, &Ecosystem::get_secondary_1
+      >
+    >
+  > ecosystems_multi_index;
 
   ecosystems_multi_index get_ecosystems_table_for(name ecosystem_owner) {
     return ecosystems_multi_index(get_self(), ecosystem_owner.value);
@@ -483,12 +535,19 @@ private:
   **/
   struct [[eosio::table]] MyWaxBadges {
     uint32_t key;
-    string ecosystem_owner;   // Data resides in ecosystem_owner's storage scope
+    name account;
     uint32_t ecosystem_id;
     uint32_t user_id;
     uint32_t primary_key() const { return key; }
+    uint64_t get_secondary_1() const { return account.value;}
   };
-  typedef eosio::multi_index<"mywaxbadges"_n, MyWaxBadges> mywaxbadges_multi_index;   // WAX table names must be <= 12 chars
+  typedef eosio::multi_index<
+    "mywaxbadges"_n, MyWaxBadges, indexed_by<
+      "byaccount"_n, const_mem_fun<
+        MyWaxBadges, uint64_t, &MyWaxBadges::get_secondary_1
+      >
+    >
+  > mywaxbadges_multi_index;
 
   mywaxbadges_multi_index get_mywaxbadge_table_for(name account) {
     return mywaxbadges_multi_index(get_self(), account.value);
@@ -530,5 +589,5 @@ private:
 };
 
 
-EOSIO_DISPATCH( waxbadges, (addecosys)(editecosys)(addcat)(editcat)(addach)(editach)(retireach)(adduser)(edituser)(wipeusername)(approveclaim)(claimuser)(grantach) )
+EOSIO_DISPATCH( waxbadges, (addecosys)(editecosys)(addcat)(editcat)(addach)(editach)(retireach)(adduser)(edituser)(wipeusername)(approveclaim)(claimuser)(grantach)(wipetables) )
 

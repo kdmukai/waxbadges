@@ -65,7 +65,7 @@ class Test(unittest.TestCase):
             permission=(STUDIOA, Permission.ACTIVE)
         )
 
-        table = CONTRACT.table("ecosystems", STUDIOA)
+        table = CONTRACT.table("ecosystems", CONTRACT)
         self.assertEqual(table.json["rows"][0]["name"], ecosystem_name)
         STUDIOA.info()
 
@@ -83,7 +83,7 @@ class Test(unittest.TestCase):
             permission=(CONTRACT, Permission.ACTIVE)
         )
 
-        table = CONTRACT.table("ecosystems", STUDIOA)
+        table = CONTRACT.table("ecosystems", CONTRACT)
         self.assertEqual(table.json["rows"][1]["name"], ecosystem_name)
 
 
@@ -136,13 +136,14 @@ class Test(unittest.TestCase):
             permission=(STUDIOB, Permission.ACTIVE)
         )
 
-        # Because of the table scope, STUDIOB's Ecosystem will also have index 0
-        table = CONTRACT.table("ecosystems", STUDIOB)
-        self.assertEqual(table.json["rows"][0]["name"], ecosystem_name)
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertEqual(table.json["rows"][2]["name"], ecosystem_name)
 
-        # While STUDIOA still has her Orgs in her own table scope
-        table = CONTRACT.table("ecosystems", STUDIOA)
+        # While STUDIOA still has her Orgs
+        table = CONTRACT.table("ecosystems", CONTRACT)
+
         self.assertTrue(table.json["rows"][0]["name"] != ecosystem_name)
+        self.assertTrue(table.json["rows"][1]["name"] != ecosystem_name)
 
 
 
@@ -159,7 +160,7 @@ class Test(unittest.TestCase):
             permission=(STUDIOA, Permission.ACTIVE)
         )
 
-        table = CONTRACT.table("ecosystems", STUDIOA)
+        table = CONTRACT.table("ecosystems", CONTRACT)
         self.assertEqual(table.json["rows"][0]["categories"][0]["name"], category_name)
 
 
@@ -175,12 +176,13 @@ class Test(unittest.TestCase):
                 "category_id": 0,
                 "achievement_name": achievement_name,
                 "description": "This is the achievement description!",
-                "assetname": "hotdog.png"
+                "assetname": "hotdog.png",
+                "maxquantity": 999
             },
             permission=(STUDIOA, Permission.ACTIVE)
         )
 
-        table = CONTRACT.table("ecosystems", STUDIOA)
+        table = CONTRACT.table("ecosystems", CONTRACT)
         self.assertEqual(table.json["rows"][0]["categories"][0]["achievements"][0]["name"], achievement_name)
 
 
@@ -195,12 +197,13 @@ class Test(unittest.TestCase):
                 "category_id": 0,
                 "achievement_name": achievement_name,
                 "description": "",
-                "assetname": "blueberry_pie.png"
+                "assetname": "blueberry_pie.png",
+                "maxquantity": 999
             },
             permission=(STUDIOA, Permission.ACTIVE)
         )
 
-        table = CONTRACT.table("ecosystems", STUDIOA)
+        table = CONTRACT.table("ecosystems", CONTRACT)
         self.assertEqual(table.json["rows"][0]["categories"][0]["achievements"][1]["name"], achievement_name)
 
 
@@ -215,14 +218,36 @@ class Test(unittest.TestCase):
                 "category_id": 0,
                 "achievement_name": achievement_name,
                 "description": "",
-                "assetname": "sleepy.png"
+                "assetname": "sleepy.png",
+                "maxquantity": 999
             },
             permission=(STUDIOA, Permission.ACTIVE)
         )
 
-        table = CONTRACT.table("ecosystems", STUDIOA)
+        table = CONTRACT.table("ecosystems", CONTRACT)
         self.assertEqual(table.json["rows"][0]["categories"][0]["achievements"][2]["name"], achievement_name)
 
+
+
+    def test_0320_account_create_limited_achievement(self):
+        COMMENT("Should allow an WAX account to create a limited Achievement")
+        achievement_name = "First to Respond"
+        CONTRACT.push_action(
+            "addach",
+            {
+                "ecosystem_owner": STUDIOA,
+                "ecosystem_id": 0,
+                "category_id": 0,
+                "achievement_name": achievement_name,
+                "description": "",
+                "assetname": "first.png",
+                "maxquantity": 1
+            },
+            permission=(STUDIOA, Permission.ACTIVE)
+        )
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertEqual(table.json["rows"][0]["categories"][0]["achievements"][3]["name"], achievement_name)
 
 
     def test_0400_account_create_user(self):
@@ -239,8 +264,26 @@ class Test(unittest.TestCase):
             permission=(STUDIOA, Permission.ACTIVE)
         )
 
-        table = CONTRACT.table("ecosystems", STUDIOA)
+        table = CONTRACT.table("ecosystems", CONTRACT)
         self.assertEqual(table.json["rows"][0]["users"][0]["name"], user_name)
+
+
+    def test_0401_account_create_another_user(self):
+        COMMENT("Should allow an WAX account to create a User")
+        user_name = "Zeke"
+        CONTRACT.push_action(
+            "adduser",
+            {
+                "ecosystem_owner": STUDIOA,
+                "ecosystem_id": 0,
+                "user_name": user_name,
+                "userid": "34563543"
+            },
+            permission=(STUDIOA, Permission.ACTIVE)
+        )
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertEqual(table.json["rows"][0]["users"][1]["name"], user_name)
 
 
     def test_0600_account_grant_achievement(self):
@@ -258,7 +301,7 @@ class Test(unittest.TestCase):
             permission=(STUDIOA, Permission.ACTIVE)
         )
 
-        table = CONTRACT.table("ecosystems", STUDIOA)
+        table = CONTRACT.table("ecosystems", CONTRACT)
         self.assertEqual(table.json["rows"][0]["users"][0]["bycategory"][0]["value"]["userachievements"][0]["achievement_id"], 0)
 
 
@@ -277,8 +320,52 @@ class Test(unittest.TestCase):
             permission=(STUDIOA, Permission.ACTIVE)
         )
 
-        table = CONTRACT.table("ecosystems", STUDIOA)
+        table = CONTRACT.table("ecosystems", CONTRACT)
         self.assertEqual(table.json["rows"][0]["users"][0]["bycategory"][0]["value"]["userachievements"][1]["achievement_id"], 1)
+
+
+    def test_0620_account_grant_limited_achievement(self):
+        COMMENT("Should allow an WAX account to grant a User an Achievement")
+        CONTRACT.push_action(
+            "grantach",
+            {
+                "ecosystem_owner": STUDIOA,
+                "ecosystem_id": 0,
+                "user_id": 0,
+                "category_id": 0,
+                "achievement_id": 3,
+                "timestamp": round(time.time())
+            },
+            permission=(STUDIOA, Permission.ACTIVE)
+        )
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertEqual(table.json["rows"][0]["users"][0]["bycategory"][0]["value"]["userachievements"][2]["achievement_id"], 3)
+
+
+    def test_0621_account_grant_limited_achievement_fails_at_max(self):
+        COMMENT("Should not allow a WAX account to grant a User an Achievement already at maxquantity")
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertEqual(table.json["rows"][0]["categories"][0]["achievements"][3]["maxquantity"], 1)
+        self.assertEqual(len(table.json["rows"][0]["categories"][0]["achievements"][3]["usersgranted"]), 1)
+
+        with self.assertRaises(Exception) as e:
+            CONTRACT.push_action(
+                "grantach",
+                {
+                    "ecosystem_owner": STUDIOA,
+                    "ecosystem_id": 0,
+                    "user_id": 1,
+                    "category_id": 0,
+                    "achievement_id": 3,
+                    "timestamp": round(time.time())
+                },
+                permission=(STUDIOA, Permission.ACTIVE)
+            )
+
+        err_msg = str(e.exception)
+        self.assertTrue("Achievement max quantity" in err_msg, err_msg)
 
 
     def test_0700_edit_achievement(self):
@@ -294,12 +381,13 @@ class Test(unittest.TestCase):
                 "achievement_id": achievement_id,
                 "achievement_name": new_achievement_name,
                 "description": "",
-                "assetname": "blueberry_pie.png"
+                "assetname": "blueberry_pie.png",
+                "maxquantity": 999
             },
             permission=(STUDIOA, Permission.ACTIVE)
         )
 
-        table = CONTRACT.table("ecosystems", STUDIOA)
+        table = CONTRACT.table("ecosystems", CONTRACT)
         self.assertEqual(table.json["rows"][0]["categories"][0]["achievements"][achievement_id]["name"], new_achievement_name)
 
 
@@ -309,7 +397,7 @@ class Test(unittest.TestCase):
         achievement_id = 0
         new_achievement_name = "New name that will fail"
 
-        table = CONTRACT.table("ecosystems", STUDIOA)
+        table = CONTRACT.table("ecosystems", CONTRACT)
         self.assertTrue(len(table.json["rows"][0]["categories"][0]["achievements"][achievement_id]["usersgranted"]) > 0)
 
         with self.assertRaises(Exception) as e:
@@ -322,7 +410,8 @@ class Test(unittest.TestCase):
                     "achievement_id": achievement_id,
                     "achievement_name": new_achievement_name,
                     "description": "",
-                    "assetname": "blueberry_pie.png"
+                    "assetname": "blueberry_pie.png",
+                    "maxquantity": 999
                 },
                 permission=(STUDIOA, Permission.ACTIVE)
             )
@@ -347,7 +436,7 @@ class Test(unittest.TestCase):
             permission=(STUDIOA, Permission.ACTIVE)
         )
 
-        table = CONTRACT.table("ecosystems", STUDIOA)
+        table = CONTRACT.table("ecosystems", CONTRACT)
         self.assertEqual(table.json["rows"][0]["users"][user_id]["account"], BOB.name)
 
 
@@ -372,7 +461,7 @@ class Test(unittest.TestCase):
 
 
     def test_0850_claim_user(self):
-        COMMENT("Should allow an WAX account to claim its approved User")
+        COMMENT("Should allow a WAX account to claim its approved User")
         user_id = 0
         CONTRACT.push_action(
             "claimuser",
@@ -385,8 +474,11 @@ class Test(unittest.TestCase):
             permission=(BOB, Permission.ACTIVE)
         )
 
-        table = CONTRACT.table("mywaxbadges", BOB)
-        self.assertEqual(table.json["rows"][0]["ecosystem_owner"], STUDIOA.name)
+        table = CONTRACT.table("mywaxbadges", CONTRACT)
+
+        print(dir(BOB))
+        print(BOB.info())
+        self.assertEqual(table.json["rows"][0]["account"], BOB.name)
         self.assertEqual(table.json["rows"][0]["ecosystem_id"], 0)
         self.assertEqual(table.json["rows"][0]["user_id"], user_id)
 

@@ -4,6 +4,8 @@
 # WAXBadges
 _An open Achievements platform for the WAX blockchain_
 
+twitter: [@WAXBadges](https://twitter.com/WAXBadges)
+
 
 ## Motivation
 Current achievement systems are completely trapped within their own ecosystems--XBox gamertags, each individual mobile app, Steam trophies, even certifications for tech or skills training (e.g. Khan Academy badges).
@@ -18,7 +20,7 @@ The blockchain offers permanent, public online data storage. Writing achievement
 
 
 ## WAXBadges overview
-WAXBadges is a WAX smart contract that provides a simple, open platform for any permanent achievement system to be built upon. Think of WAXBadges as a kind of backend service (AaaS -- Achievements as a Service?) that handles storage, permissions logic, management, and more. This allows game developers to easily write their users' achievements as WAXBadges to the WAX blockchain. Their players will be extra-excited to stay engaged with their games as they see their in-game achievements now accessible in one central location.
+WAXBadges is a WAX smart contract and related services that provide a simple, open platform for any permanent achievement system to be built upon. Think of WAXBadges as a kind of backend service (AaaS -- Achievements as a Service?) that handles storage, permissions logic, management, and more. This allows game developers to easily write their users' achievements as WAXBadges to the WAX blockchain. Their players will be extra-excited to stay engaged with their games as they see their in-game achievements now accessible in one central location.
 
 The smart contract details will be totally hidden away from the players; they won't need to know anything about blockchains to be able to unlock and view achievements. 
 
@@ -107,7 +109,28 @@ The structure above was carefully designed to minimize blockchain storage costs.
 I learned this the hard way while developing the first version of this project for the EOS blockchain. I have a full writeup here: [RAM Rekt! EOS Storage Pitfalls](https://medium.com/@kdmukai_22159/ram-rekt-1eb8851b6fba). It is remarkable that a few minor design changes take the code from an impossibly cost-heavy _seems-great-in-theory-but-is-garbage-in-practice_ toy project to a truly viable, highly cost-effective achievements platform.
 
 
-## EOS local dev
+## For game developers
+_This section will be pulled out into its own guide once a demonstration webapp minigame is built._
+
+Game developers who want to build on WAXBadges:
+* Create a WAX All Access account for their studio or for each individual game at [account.wax.io](https://account.wax.io).
+  * Follow the steps to generate new keys in Scatter without a Ledger.
+* Sync Scatter:
+  * Add the WAX chain details to the EOSIO in the 'Networks' section.
+  * Refresh Accounts for the keys created above. The new WAX account name should appear.
+* Buy WAX tokens and transfer them into the new WAX account.
+  * Use tokens to buy RAM in Scatter to cover expected storage costs
+    * _Much more detail to come here. Need a rough calculator for how much data will be written plus info on how to check the current price of RAM._
+  * Stake tokens for CPU and NET.
+* _Coming Soon:_ Use the WAXBadges webapp to create and manage their new Achievements ecosystem.
+  * Blockchain-savvy devs can also directly interact with the contract via `cleos` or other tools.
+* _Coming Soon:_ Refer to the demonstration webapp for how to grant achievements to users.
+  * Will also show how blockchain-savvy players can claim their achievements by linking their WAX account.
+
+
+
+## Testing and deploying the contract
+### EOS local dev
 This project originally started on the EOS blockchain but has been migrated to WAX. However, because the WAX blockchain is a fork of `eosio` it fully supports EOS smart contracts. This means that we can continue to do local development against the well-tooled EOS blockchain, even if the WAX blockchain is our ultimate target.
 
 
@@ -128,7 +151,7 @@ Install via Homebrew, targeting the v1.4.1 release's git hash:
 brew unlink eosio.cdt
 brew install https://raw.githubusercontent.com/EOSIO/homebrew-eosio.cdt/e6fc339b845219d8bc472b7a4ad0c146bd33752a/eosio.cdt.rb
 ```
-_WAX also has their own v1.4.1 `eosio.cdt` release [here](https://github.com/worldwide-asset-exchange/wax-cdt)_
+_WAX also has their own v1.4.1 `eosio.cdt` release [here](https://github.com/worldwide-asset-exchange/wax-cdt) but it is not necessary if your contract is fully compliant with `eosio.cdt` 1.4.1._
 
 
 ### Supported versions
@@ -175,9 +198,9 @@ So I added two simple scripts:
 
 
 ## Running locally
-If you want to directly interact with the smart contract on your local blockchain, there are quite a number of manual steps. But aside from being not super user-friendly, it's more or less straightforward:
+If you want to directly interact with the smart contract on your local blockchain, there are a number of manual steps. But aside from being not super user-friendly, it's more or less straightforward:
 
-Start kleos and nodeos:
+Start keos and nodeos:
 ```
 keosd &
 nodeos -e -p eosio \
@@ -245,7 +268,7 @@ cleos set contract waxbadges /path/to/contracts/waxbadges -p waxbadges@active
 
 Push some basic smart contract actions:
 ```
-cleos push action waxbadges addorg '["alice", "Awesome Ecosystem", "fakedomain.com/assets"]' -p alice@active
+cleos push action waxbadges addecosys '["alice", "Awesome Ecosystem", "fakedomain.com/assets"]' -p alice@active
 ```
 
 ## Cleanup / Resetting
@@ -260,6 +283,38 @@ To reset the local chain's wallets:
 rm -rf ~/eosio-wallet
 ```
 
+## Manually interacting with the deployed contract
+All of the same `cleos` steps above apply for the live production contract. Simply point `cleos` at the WAX chain with the `-u` switch:
+```
+cleos -u https://chain.wax.io get table waxbadgesftw alice ecosystems
+```
+
+In order to act on behalf of a particular account, you'll have to add its private key to your local `cleos` wallet:
+```
+cleos wallet import --private-key 1234someprivatekey098
+```
+
+```
+cleos push action waxbadges addecosys '["someacct", "Some Ecosystem", "blah.com/assets"]' -p someacct@active
+```
+
+
+## Data table migrations
+_More details to come_
+
+Re-Deploy the compiled contract:
+```
+rm -rf ~/eosio-wallet
+cleos wallet create -n waxbadges --to-console
+cleos wallet open -n waxbadges 
+cleos wallet unlock -n waxbadges 
+cleos wallet import -n waxbadges 
+cleos -u https://chain.wax.io set contract waxbadgesftw /path/to/contracts/waxbadges -p waxbadgesftw@active
+
+cleos -u https://chain.wax.io push action waxbadgesftw addecosys '["someacct", "WAXBadges Genesis Team", "assets.waxbadges.com/ecosys/genesis"]' -p someacct@active
+```
+
+
 
 
 # TODO / Future Features
@@ -271,7 +326,10 @@ rm -rf ~/eosio-wallet
     * Browse by gamer's blockchain account; see their unified `Achievements` across all linked `Ecosystems`.
     * Social media sharing.
 
+* Basic management webapp for game developers to create and manage their achievement ecosystems.
+
 * Basic demonstration webapp with simple tasks users can complete to earn achievements.
+  * (eventually) include option for blockchain-savvy players to claim their achievements by linking their WAX account.
 
 * Add support for a points system for each `Achievement`, point totals for `User`s?
 
