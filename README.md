@@ -311,7 +311,9 @@ cleos wallet unlock -n waxbadges
 cleos wallet import -n waxbadges 
 cleos -u https://chain.wax.io set contract waxbadgesftw /path/to/contracts/waxbadges -p waxbadgesftw@active
 
-cleos -u https://chain.wax.io push action waxbadgesftw addecosys '["someacct", "WAXBadges Genesis Team", "assets.waxbadges.com/ecosys/genesis"]' -p someacct@active
+cleos -u https://chain.wax.io push action waxbadgesftw wipetables '[]' -p waxbadgesftw@active
+
+cleos -u https://chain.wax.io push action waxbadgesftw addecosys '["waxbadgesftw", "WAXBadges Genesis Campaign", "https://waxbadges.com", "assets.waxbadges.com/ecosys/genesis", "waxbadges_logo.png"]' -p waxbadgesftw@active
 ```
 
 

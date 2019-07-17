@@ -60,7 +60,10 @@ class Test(unittest.TestCase):
             {
                 "ecosystem_owner": STUDIOA,
                 "ecosystem_name": ecosystem_name,
-                "assetbaseurl": "somedomainname.com/imgs/trophies"
+                "description": "This is the Ecosystem description",
+                "website": "https://somedomain.com",
+                "assetbaseurl": "somedomainname.com/imgs/trophies",
+                "logoassetname": "company_logo.png"
             },
             permission=(STUDIOA, Permission.ACTIVE)
         )
@@ -78,7 +81,10 @@ class Test(unittest.TestCase):
             {
                 "ecosystem_owner": STUDIOA,
                 "ecosystem_name": ecosystem_name,
-                "assetbaseurl": "someotherdomainname.com/assets"
+                "description": "This is the Ecosystem description",
+                "website": "https://somedomain.com",
+                "assetbaseurl": "someotherdomainname.com/assets",
+                "logoassetname": "other_logo.png"
             },
             permission=(CONTRACT, Permission.ACTIVE)
         )
@@ -96,7 +102,10 @@ class Test(unittest.TestCase):
                 {
                     "ecosystem_owner": STUDIOA,
                     "ecosystem_name": ecosystem_name,
-                    "assetbaseurl": "someotherdomainname.com/assets"
+                    "description": "This is the Ecosystem description",
+                    "website": "https://somedomain.com",
+                    "assetbaseurl": "someotherdomainname.com/assets",
+                    "logoassetname": "company_logo.png"
                 },
                 permission=(STUDIOA, Permission.ACTIVE)
             )
@@ -114,7 +123,10 @@ class Test(unittest.TestCase):
                 {
                     "ecosystem_owner": STUDIOA,
                     "ecosystem_name": ecosystem_name,
-                    "assetbaseurl": "someotherdomainname.com/assets"
+                    "description": "This is the Ecosystem description",
+                    "website": "https://somedomain.com",
+                    "assetbaseurl": "someotherdomainname.com/assets",
+                    "logoassetname": "bobs_logo.png"
                 },
                 permission=(BOB, Permission.ACTIVE)
             )
@@ -131,7 +143,10 @@ class Test(unittest.TestCase):
             {
                 "ecosystem_owner": STUDIOB,
                 "ecosystem_name": ecosystem_name,
-                "assetbaseurl": "yetanotherdomainname.com/static"
+                "description": "This is the Ecosystem description",
+                "website": "https://yetanotherdomainname.com",
+                "assetbaseurl": "yetanotherdomainname.com/static",
+                "logoassetname": "yadn_logo.png"
             },
             permission=(STUDIOB, Permission.ACTIVE)
         )
@@ -162,7 +177,6 @@ class Test(unittest.TestCase):
 
         table = CONTRACT.table("ecosystems", CONTRACT)
         self.assertEqual(table.json["rows"][0]["categories"][0]["name"], category_name)
-
 
 
     def test_0300_account_create_achievement(self):
@@ -226,7 +240,6 @@ class Test(unittest.TestCase):
 
         table = CONTRACT.table("ecosystems", CONTRACT)
         self.assertEqual(table.json["rows"][0]["categories"][0]["achievements"][2]["name"], achievement_name)
-
 
 
     def test_0320_account_create_limited_achievement(self):
@@ -476,8 +489,6 @@ class Test(unittest.TestCase):
 
         table = CONTRACT.table("mywaxbadges", CONTRACT)
 
-        print(dir(BOB))
-        print(BOB.info())
         self.assertEqual(table.json["rows"][0]["account"], BOB.name)
         self.assertEqual(table.json["rows"][0]["ecosystem_id"], 0)
         self.assertEqual(table.json["rows"][0]["user_id"], user_id)

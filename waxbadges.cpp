@@ -23,7 +23,7 @@ public:
   * ECOSYSTEM
   *****************************************************************************/
   [[eosio::action]]
-  void addecosys(name ecosystem_owner, string ecosystem_name, string assetbaseurl) {
+  void addecosys(name ecosystem_owner, string ecosystem_name, string description, string website, string assetbaseurl, string logoassetname) {
     check_is_contract_or_owner(ecosystem_owner);
 
     validateAssetbaseurl(assetbaseurl);
@@ -33,11 +33,14 @@ public:
       check(iter->name != ecosystem_name, "Ecosystem is not unique");
     }
 
-    ecosystems_table.emplace(maybe_charge_to(ecosystem_owner), [&](auto& org) {
-      org.key = ecosystems_table.available_primary_key();
-      org.account = ecosystem_owner;
-      org.name = ecosystem_name;
-      org.assetbaseurl = assetbaseurl;  // may be empty string
+    ecosystems_table.emplace(maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
+      ecosystem.key = ecosystems_table.available_primary_key();
+      ecosystem.account = ecosystem_owner;
+      ecosystem.name = ecosystem_name;
+      ecosystem.description = description;
+      ecosystem.website = website;
+      ecosystem.assetbaseurl = assetbaseurl;  // may be empty string
+      ecosystem.logoassetname = logoassetname;
     });
   }
 
@@ -51,7 +54,7 @@ public:
 
 
   [[eosio::action]]
-  void editecosys(name ecosystem_owner, uint32_t ecosystem_id, string ecosystem_name, string assetbaseurl) {
+  void editecosys(name ecosystem_owner, uint32_t ecosystem_id, string ecosystem_name, string description, string website, string assetbaseurl, string logoassetname) {
     check_is_contract_or_owner(ecosystem_owner);
 
     validateAssetbaseurl(assetbaseurl);
@@ -67,9 +70,12 @@ public:
     // The ecosystem_owner must match the Ecosystem.account to make changes
     check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
 
-    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& org) {
-      org.name = ecosystem_name;
-      org.assetbaseurl = assetbaseurl;
+    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
+      ecosystem.name = ecosystem_name;
+      ecosystem.description = description;
+      ecosystem.website = website;
+      ecosystem.assetbaseurl = assetbaseurl;  // may be empty string
+      ecosystem.logoassetname = logoassetname;
     });
   }
 
@@ -94,8 +100,8 @@ public:
     Category category;
     category.name = category_name;
 
-    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& org) {
-      org.categories.push_back(category);
+    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
+      ecosystem.categories.push_back(category);
     });
   }
 
@@ -114,8 +120,8 @@ public:
     check(category_id < ecosystems_iter->categories.size(), "Category not found");
     check_name_is_unique(ecosystems_iter->categories, category_name);
 
-    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& org) {
-      org.categories[category_id].name = category_name;
+    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
+      ecosystem.categories[category_id].name = category_name;
     });
   }
 
@@ -225,11 +231,11 @@ public:
 
     check_name_is_unique(achievements, achievement_name);
 
-    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& org) {
-      org.categories[category_id].achievements[achievement_id].name = achievement_name;
-      org.categories[category_id].achievements[achievement_id].description = description;
-      org.categories[category_id].achievements[achievement_id].assetname = assetname;
-      org.categories[category_id].achievements[achievement_id].maxquantity = maxquantity;
+    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
+      ecosystem.categories[category_id].achievements[achievement_id].name = achievement_name;
+      ecosystem.categories[category_id].achievements[achievement_id].description = description;
+      ecosystem.categories[category_id].achievements[achievement_id].assetname = assetname;
+      ecosystem.categories[category_id].achievements[achievement_id].maxquantity = maxquantity;
     });
   }
 
@@ -257,8 +263,8 @@ public:
     auto achievements = ecosystems_iter->categories[category_id].achievements;
     check(achievement_id < achievements.size(), "Achievement not found");
 
-    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& org) {
-      org.categories[category_id].achievements[achievement_id].active = false;
+    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
+      ecosystem.categories[category_id].achievements[achievement_id].active = false;
     });
   }
 
@@ -284,8 +290,8 @@ public:
 
     check_name_is_unique(ecosystems_iter->users, user_name);
 
-    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& org) {
-      org.users.push_back(user);
+    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
+      ecosystem.users.push_back(user);
     });
   }
 
@@ -308,9 +314,9 @@ public:
       check_name_is_unique(ecosystems_iter->users, user_name);
     }
 
-    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& org) {
-      org.users[user_id].name = user_name;
-      org.users[user_id].userid = userid;
+    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
+      ecosystem.users[user_id].name = user_name;
+      ecosystem.users[user_id].userid = userid;
     });
   }
 
@@ -356,8 +362,8 @@ public:
     // Cannot claim an already claimed User
     check(ecosystems_iter->users[user_id].account == "", "User has already been claimed");
 
-    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& org) {
-      org.users[user_id].account = user_account.to_string();
+    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
+      ecosystem.users[user_id].account = user_account.to_string();
     });
   }
 
@@ -432,10 +438,10 @@ public:
     userachievement.achievement_id = achievement_id;
     userachievement.timestamp = timestamp;
 
-    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& org) {
+    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
       // We log grants in two directions: on the User and on the Achievement
-      org.users[user_id].bycategory[category_id].userachievements.push_back(userachievement);
-      org.categories[category_id].achievements[achievement_id].usersgranted.push_back(user_id);
+      ecosystem.users[user_id].bycategory[category_id].userachievements.push_back(userachievement);
+      ecosystem.categories[category_id].achievements[achievement_id].usersgranted.push_back(user_id);
     });
   }
 
@@ -466,15 +472,13 @@ private:
   // All tables will be created in the contract's scope
 
   /**
-    An ecosystem_owner can run multiple Organizations, each of which will have their
-    own entry.
-    Categories live within their Ecosystem where category_id is their vector
-    index.
+    An ecosystem_owner can run multiple Ecosystems, each of which will have their
+    own Ecosystems entry.
   **/
   struct Achievement {
     string name;
     string description;
-    string assetname;   // relative to the Org's assetbaseurl: "sometrophy.png" or "subdir/sometrophy.png"
+    string assetname;   // relative to the Ecosystem's assetbaseurl: "sometrophy.png" or "subdir/sometrophy.png"
     uint32_t maxquantity;   // 0 == no max set
     bool active = true;
     vector<uint32_t> usersgranted;
@@ -510,7 +514,10 @@ private:
     uint32_t key;
     name account;
     string name;
+    string description;
+    string website;
     string assetbaseurl;  // e.g. "mydomain.com/img/trophies" (omit http/https)
+    string logoassetname;     // just the filename within the above assetbaseurl
     vector<Category> categories;
     vector<User> users;
     uint32_t primary_key() const { return key; }

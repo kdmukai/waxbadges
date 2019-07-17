@@ -33,3 +33,9 @@
 *.app
 *.wasm
 build/
+
+# NPM
+node_modules/
+
+
+wallet_password.txt
