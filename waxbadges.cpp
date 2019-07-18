@@ -64,7 +64,7 @@ public:
     check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
 
     for (auto iter = ecosystems_table.begin(); iter != ecosystems_table.end(); iter++) {
-      check(iter->name != ecosystem_name, "Ecosystem is not unique");
+      check(iter->key != ecosystem_id && iter->name != ecosystem_name, "Ecosystem is not unique");
     }
 
     // The ecosystem_owner must match the Ecosystem.account to make changes

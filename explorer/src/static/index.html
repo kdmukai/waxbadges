@@ -4,9 +4,8 @@
 
     <title>WAXBadges Achievements Explorer</title>
 
-    <link href="https://fonts.googleapis.com/css?family=Titillium+Web&display=swap" rel="stylesheet">
-    <link href="css/explorer.css" rel="stylesheet">
-    <script src="app.js"></script>
+    <link href="/css/explorer.css" rel="stylesheet">
+    <script src="/app.js"></script>
 
     <style>
       .intro {
@@ -19,14 +18,82 @@
     <a href="/"><img width="175" height="36" src="https://github.com/kdmukai/waxbadges/raw/master/assets/waxbadges_logo_350x72.png" /></a>
 
     <div class="main_content">
-      <h1 align="center">WAXBadges Achievements Explorer</h1>
-      <div class="intro">A very simple proof-of-concept blockchain explorer to browse, view, and share your WAXBadges achievements. Your achievements live on the WAX blockchain. This site is just one simple way to view what's there.</div>
 
-      <div id="ecosystems_container">
+
+      <div id="home_container" class="page_container">
+        <h1 align="center">WAXBadges Achievements Explorer</h1>
+        <div class="intro">A very simple proof-of-concept blockchain explorer to browse, view, and share your WAXBadges achievements. Your achievements live on the WAX blockchain. This site is just one simple way to view what's there.</div>
+
         <h2>Ecosystems</h2>
         <div id="ecosystems_list"></div>
       </div>
-    </div>
 
+
+      <div id="ecosystem_container" class="page_container">
+        <style>
+          #ecosystem_website {
+            text-align: center;
+            font-size: 0.7em;
+          }
+          #ecosystem_description {
+            text-align: center;
+            font-size: 0.9em;
+          }
+
+          #ecosystem_container .category {
+            display: none;
+            margin-top: 2em;
+            text-align: center;
+            padding: 0.25em 1em 1em 1em;
+            border: 1px solid #111;
+            border-radius: 0.5em;
+          }
+          #ecosystem_container .cat_name {
+            text-align: left;
+          }
+
+          #ecosystem_container .achievement {
+            display: none;
+            text-align: center;
+            padding: 0.5em;
+            margin: 1em;
+            background-color: #222;
+            border: 1px solid #444;
+            border-radius: 0.25em;
+          }
+          #ecosystem_container .achievement:hover {
+            background-color: #111;
+            cursor: pointer;
+          }
+
+          #ecosystem_container .ach_quantity {
+            font-size: 0.6em;
+            color: #666;
+          }
+          #ecosystem_container .ach_description {
+            font-size: 0.8em;
+            color: #999;
+          }
+        </style>
+        <div id="ecosystem_name" class="page_title"></div>
+        <div id="ecosystem_website"></div>
+        <div id="ecosystem_description"></div>
+        <div id="category_list"></div>
+
+        <div class="category_template category">
+          <div class="cat_name"></div>
+          <div class="ach_list"></div>
+        </div>
+
+        <div class="achievement_template achievement">
+          <img class="ach_asset" max-width="100" max-height="100"/>
+          <div class="ach_name"></div>
+          <div class="ach_quantity"></div>
+          <div class="ach_description"></div>
+        </div>
+      </div>
+
+
+    </div>
   </body>
 </html>

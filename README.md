@@ -7,6 +7,8 @@ _An open Achievements platform for the WAX blockchain_
 twitter: [@WAXBadges](https://twitter.com/WAXBadges)
 
 
+Basic WAXBadges Achievement Explorer is live: [explorer.waxbadges.com](https://explorer.waxbadges.com)
+
 ## Motivation
 Current achievement systems are completely trapped within their own ecosystems--XBox gamertags, each individual mobile app, Steam trophies, even certifications for tech or skills training (e.g. Khan Academy badges).
 
@@ -43,6 +45,12 @@ In brief:
 * The gamer can then submit a transaction to the WAXBadges smart contract to "claim" each `User` entry and permanently tie them to their blockchain account.
 
 After the claims are made it is then simple for a gamer to view all of their WAXBadges achievements in one place via an WAXBadges-aware block explorer.
+
+
+### Expand achievements beyond gaming
+WAXBadges is launching with a proof-of-concept achievement campaign based solely on twitter activity. WAXBadges is a totally open platform so _any_ entity can create an achievements ecosystem for _any_ kind of activity. It doesn't matter if that activity happens in a video game, in a twitter thread, or offline in the real world.
+
+This opens up new outreach possibilities that can also benefit from the permanence of the blockchain. Imagine a limited quantity achievement set up by a musician or DJ with a rabid fanbase. "The first 30k fans to do X will gain 'True Swifty' status... for life!"
 
 
 ### Structure
@@ -314,6 +322,10 @@ cleos -u https://chain.wax.io set contract waxbadgesftw /path/to/contracts/waxba
 cleos -u https://chain.wax.io push action waxbadgesftw wipetables '[]' -p waxbadgesftw@active
 
 cleos -u https://chain.wax.io push action waxbadgesftw addecosys '["waxbadgesftw", "WAXBadges Genesis Campaign", "https://waxbadges.com", "assets.waxbadges.com/ecosys/genesis", "waxbadges_logo.png"]' -p waxbadgesftw@active
+
+cleos -u https://chain.wax.io push action waxbadgesftw addcat '["waxbadgesftw", "0", "twitter"]' -p waxbadgesftw@active
+
+cleos -u https://chain.wax.io push action waxbadgesftw addach '["waxbadgesftw", "0", "0", "First", "First achievement ever. First 50 to follow @WAXBadges.", "first.png", "50"]' -p waxbadgesftw@active
 ```
 
 

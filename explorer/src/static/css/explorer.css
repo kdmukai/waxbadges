@@ -32,11 +32,15 @@ a {
   text-decoration: none;
 }
 a:hover {
-  color: #6cc7cc;
+  color: #00ffff;
 }
 
 .main_content {
   padding: 1em;
+}
+
+.page_container {
+  display: none;
 }
 
 .page_title {

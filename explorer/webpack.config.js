@@ -33,6 +33,7 @@ module.exports = {
     devServer: {
         contentBase: './build',
         hot: true,
+        historyApiFallback: true,   // enable SPA path behavior
         headers: {
             'Access-Control-Allow-Origin': '*'
         }
