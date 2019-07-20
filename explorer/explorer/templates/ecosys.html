@@ -1,0 +1,106 @@
+{% extends "_base.html" %}
+
+
+{% block meta_title %}{{ ecosystem.name }} | WAXBadges Achievements Explorer{% endblock %}
+
+{% block meta_description %}{{ ecosystem.description }}{% endblock %}
+
+{% block header_title %}{{ ecosystem.name }} | WAXBadges Achievements Explorer{% endblock %}
+
+
+
+{% block header_content %}
+    <style>
+        #ecosystem_website {
+            text-align: center;
+            font-size: 0.7em;
+        }
+        #ecosystem_description {
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .category {
+            max-width: 660px;
+            margin: auto;
+            margin-top: 2em;
+            text-align: center;
+            padding: 0.25em 1em 1em 1em;
+            border: 1px solid #111;
+            border-radius: 0.5em;
+        }
+        .cat_name {
+            text-align: left;
+        }
+
+        .ach_list {
+            text-align: center;
+        }
+
+        .achievement {
+            text-align: center;
+            width: 250px;
+            padding: 0.5em;
+            padding-top: 1em;
+            margin: 1em;
+            background-color: #222;
+            border: 1px solid #444;
+            display: inline-block;
+            clear: left;
+            vertical-align: top;
+            position: relative;
+        }
+        .achievement:hover {
+            background-color: #111;
+            cursor: pointer;
+        }
+
+        .ach_asset {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 0.75em;
+        }
+        .ach_quantity {
+            font-size: 0.6em;
+            color: #666;
+        }
+        .ach_description {
+            font-size: 0.8em;
+            color: #999;
+            line-height: 1.2em;
+            height: 3.2em;
+            overflow: hidden;
+        }
+    </style>
+{% endblock %}
+
+
+
+
+{% block main_content %}
+    <div id="ecosystem_name" class="page_title">{{ ecosystem.name }}</div>
+    <div id="ecosystem_website"><a href="{{ ecosystem.website }}" target="_new">{{ ecosystem.website }}</a></div>
+    <div id="ecosystem_description">{{ ecosystem.description }}</div>
+    <div id="category_list">
+        {% for category in ecosystem.categories %}
+            {% set cat_key = loop.index0 %}
+            <div class="category">
+                <div class="cat_name">{{ category.name }}</div>
+                <div class="ach_list">
+                    {% for achievement in category.achievements %}
+                        {% set ach_key = loop.index0 %}
+                        <div class="achievement" onclick="location.href='/ach/{{ ecosystem.key }}/{{ cat_key }}/{{ ach_key }}';">
+                            <img class="ach_asset" src="//{{ ecosystem.assetbaseurl }}/{{ achievement.assetname }}"/>
+                            <div class="ach_name">{{ achievement.name }}</div>
+                            <div class="ach_quantity">max: {{ achievement.maxquantity }}</div>
+                            <div class="ach_description">{{ achievement.description }}</div>
+                        </div>
+                    {% endfor %}                    
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+
+

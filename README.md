@@ -321,11 +321,11 @@ cleos -u https://chain.wax.io set contract waxbadgesftw /path/to/contracts/waxba
 
 cleos -u https://chain.wax.io push action waxbadgesftw wipetables '[]' -p waxbadgesftw@active
 
-cleos -u https://chain.wax.io push action waxbadgesftw addecosys '["waxbadgesftw", "WAXBadges Genesis Campaign", "https://waxbadges.com", "assets.waxbadges.com/ecosys/genesis", "waxbadges_logo.png"]' -p waxbadgesftw@active
+cleos -u https://chain.wax.io push action waxbadgesftw addecosys '["waxbadgesftw", "WAXBadges Genesis Campaign", "https://waxbadges.com", "explorer.waxbadges.com/assets", "waxbadges_logo.png"]' -p waxbadgesftw@active
 
 cleos -u https://chain.wax.io push action waxbadgesftw addcat '["waxbadgesftw", "0", "twitter"]' -p waxbadgesftw@active
 
-cleos -u https://chain.wax.io push action waxbadgesftw addach '["waxbadgesftw", "0", "0", "First", "First achievement ever. First 50 to follow @WAXBadges.", "first.png", "50"]' -p waxbadgesftw@active
+cleos -u https://chain.wax.io push action waxbadgesftw addach '["waxbadgesftw", "0", "0", "First", "First achievement ever. First 50 to follow @WAXBadges.", "ach_hand.png", "50"]' -p waxbadgesftw@active
 ```
 
 
@@ -347,4 +347,4 @@ cleos -u https://chain.wax.io push action waxbadgesftw addach '["waxbadgesftw", 
 
 * Add support for a points system for each `Achievement`, point totals for `User`s?
 
-* 
+* Shard Ecosystems User table for huge ecosystems?

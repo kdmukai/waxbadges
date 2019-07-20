@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+    <header>
+        <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+        <meta property="og:title" content="{% block meta_title %}WAXBadges Achievements Explorer{% endblock %}" />
+        <meta property="og:description" content="{% block meta_description %}{% endblock %}" />
+
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='img/favicon/apple-touch-icon.png') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='img/favicon/favicon-32x32.png') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='img/favicon/favicon-16x16.png') }}">
+        <link rel="manifest" href="{{ url_for('static', filename='img/favicon/site.webmanifest') }}">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon/favicon.ico') }}">
+        <meta name="msapplication-TileColor" content="#da532c">
+        <meta name="msapplication-config" content="{{ url_for('static', filename='img/favicon/browserconfig.xml') }}">
+        <meta name="theme-color" content="#ffffff">
+
+        <title>{% block header_title %}WAXBadges Achievements Explorer{% endblock %}</title>
+
+        <link href="{{ url_for('static', filename='explorer.css') }}" rel="stylesheet">
+
+        {% block header_content %}
+        {% endblock %}
+  </header>
+  <body>
+    <a href="/"><img width="175" height="36" src="{{ url_for('static', filename='img/waxbadges_logo_350x72.png') }}" /></a>
+
+    <div class="main_content">
+      {% block main_content %}
+      {% endblock %}
+    </div>
+  </body>
+</html>

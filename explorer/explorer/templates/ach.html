@@ -1,0 +1,67 @@
+{% extends "_base.html" %}
+
+
+{% block meta_title %}{{ ach.name }} | {{ ecosystem.name }} | WAXBadges Achievements Explorer{% endblock %}
+
+{% block meta_description %}{{ ach.description }}{% endblock %}
+
+{% block header_title %}{{ ach.name }} | {{ ecosystem.name }} | WAXBadges Achievements Explorer{% endblock %}
+
+
+
+{% block header_content %}
+    <style>
+        #ecosystem_website {
+            text-align: center;
+            font-size: 0.7em;
+        }
+        #ecosystem_description {
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .achievement {
+            text-align: center;
+            margin-top: 2em;
+        }
+
+        .ach_asset {
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 2em;
+        }
+        .ach_name {
+            font-size: 2em;
+        }
+        .ach_quantity {
+            font-size: 0.6em;
+            color: #666;
+        }
+        .ach_description {
+            font-size: 0.8em;
+            color: #999;
+            line-height: 1.2em;
+            height: 3.2em;
+            overflow: hidden;
+        }
+    </style>
+{% endblock %}
+
+
+
+
+{% block main_content %}
+    <div id="ecosystem_name" class="page_title">{{ ecosystem.name }}</div>
+    <div id="ecosystem_website"><a href="{{ ecosystem.website }}" target="_new">{{ ecosystem.website }}</a></div>
+    <div id="ecosystem_description">{{ ecosystem.description }}</div>
+
+    <div class="achievement">
+        <img class="ach_asset" src="//{{ ecosystem.assetbaseurl }}/{{ ach.assetname }}"/>
+        <div class="ach_name">{{ ach.name }}</div>
+        <div class="ach_quantity">max: {{ ach.maxquantity }}</div>
+        <div class="ach_description">{{ ach.description }}</div>
+    </div>
+{% endblock %}
+
+
+

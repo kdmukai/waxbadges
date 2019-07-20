@@ -54,7 +54,13 @@ public:
 
 
   [[eosio::action]]
-  void editecosys(name ecosystem_owner, uint32_t ecosystem_id, string ecosystem_name, string description, string website, string assetbaseurl, string logoassetname) {
+  void editecosys(  name ecosystem_owner,
+                    uint32_t ecosystem_id,
+                    string ecosystem_name,
+                    string description,
+                    string website,
+                    string assetbaseurl,
+                    string logoassetname) {
     check_is_contract_or_owner(ecosystem_owner);
 
     validateAssetbaseurl(assetbaseurl);
@@ -64,7 +70,9 @@ public:
     check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
 
     for (auto iter = ecosystems_table.begin(); iter != ecosystems_table.end(); iter++) {
-      check(iter->key != ecosystem_id && iter->name != ecosystem_name, "Ecosystem is not unique");
+      if (iter->key != ecosystem_id) {
+        check(iter->name != ecosystem_name, "Ecosystem is not unique");
+      }
     }
 
     // The ecosystem_owner must match the Ecosystem.account to make changes
@@ -118,7 +126,7 @@ public:
     check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
 
     check(category_id < ecosystems_iter->categories.size(), "Category not found");
-    check_name_is_unique(ecosystems_iter->categories, category_name);
+    check_name_is_unique(ecosystems_iter->categories, category_name, category_id);
 
     ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
       ecosystem.categories[category_id].name = category_name;
@@ -229,7 +237,7 @@ public:
       "Cannot edit an Achievement that has already been granted to a User"
     );
 
-    check_name_is_unique(achievements, achievement_name);
+    check_name_is_unique(achievements, achievement_name, achievement_id);
 
     ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
       ecosystem.categories[category_id].achievements[achievement_id].name = achievement_name;
@@ -311,7 +319,7 @@ public:
 
     // Allow blank names in the case of wipeuser
     if (user_name != "") {
-      check_name_is_unique(ecosystems_iter->users, user_name);
+      check_name_is_unique(ecosystems_iter->users, user_name, user_id);
     }
 
     ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
@@ -568,6 +576,15 @@ private:
   void check_name_is_unique(vector<T> name_vec, string name) {
     for (auto iter = name_vec.begin(); iter != name_vec.end(); iter++) {
       check(iter->name != name, "Name is not unique");
+    }
+  }
+  template<class T>
+  void check_name_is_unique(vector<T> name_vec, string name, uint32_t key) {
+    for (auto iter = name_vec.begin(); iter != name_vec.end(); iter++) {
+      uint32_t cur_index = iter - name_vec.begin();
+      if (cur_index != key) {
+        check(iter->name != name, "Name is not unique");
+      }
     }
   }
 

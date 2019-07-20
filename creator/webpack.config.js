@@ -8,7 +8,7 @@ module.exports = {
     output: {
         filename: 'app.js',
         path: path.resolve(__dirname, 'build'),
-        library: 'waxbadges_explorer'
+        library: 'waxbadges_creator'
     },
     module: {
         rules: [

@@ -39,11 +39,25 @@ a:hover {
   padding: 1em;
 }
 
-.page_container {
-  display: none;
-}
-
 .page_title {
   text-align: center;
   font-size: 1.6em;
 }
+
+
+
+/**
+ * Clearfix helper
+ * Used to contain floats: h5bp.com/q
+ */
+
+.clearfix:before,
+.clearfix:after {
+    content: "";
+    display: table;
+}
+
+.clearfix:after {
+    clear: both;
+}
+
