@@ -1,0 +1,35 @@
+{% extends "_base.html" %}
+
+
+
+{% block header_content %}
+    <style>
+        .site_title {
+            margin-bottom: 0;
+        }
+        .intro {
+            max-width: 650px;
+            margin: auto;
+            font-size: 0.8em;
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+
+
+
+
+{% block main_content %}
+    <h1 align="center" class="site_title">WAXBadges Achievement Explorer</h1>
+    <div class="intro">A very simple proof-of-concept blockchain explorer to browse, view, and share your WAXBadges achievements. Your achievements live on the WAX blockchain. This site is just one simple way to view what's there.</div>
+
+    <h2>Ecosystems</h2>
+    <div id="ecosystems_list">
+    {% for ecosystem in ecosystems %}
+        <div class="ecosystem_entry">
+            <a href="/ecosys/{{ ecosystem.key }}">{{ ecosystem.name }}</a>
+        </div>
+    {% endfor %}
+{% endblock %}
+
+
