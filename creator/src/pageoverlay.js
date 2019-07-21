@@ -29,13 +29,16 @@ class PageOverlay {
                 padding-bottom: 1.5em;
                 z-index: 30;
               }
+              #page_overlay_popup_cancel_button {
+                margin-right: 1em;
+              }
             </style>
         `;
         const content = `
             <div class="page_overlay" id="page_overlay">
               <div class="page_overlay_popup" id="page_overlay_popup">
                 <div id="page_overlay_popup_content"></div>
-                <!--div class="float_right"><div id="page_overlay_popup_cancel_button" class="stylized_button stylized_button_tiny">cancel</div></div-->
+                <div class="float_right"><div id="page_overlay_popup_cancel_button" class="stylized_button stylized_button_tiny">cancel</div></div>
                 <br/>
                 <div class="clear-both"></div>
               </div>
@@ -43,6 +46,7 @@ class PageOverlay {
         `;
         document.head.insertAdjacentHTML('beforeend', style);
         document.body.insertAdjacentHTML('beforeend', content);
+
     }
 
     initPageOverlay(content_selector) {
@@ -80,6 +84,8 @@ class PageOverlay {
         $("#page_overlay").hide();
         $("#page_overlay_popup").css({opacity:0.0});
     }
+
+
 
 }
 
