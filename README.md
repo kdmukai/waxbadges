@@ -7,7 +7,10 @@ _An open Achievements platform for the WAX blockchain_
 twitter: [@WAXBadges](https://twitter.com/WAXBadges)
 
 
-Basic WAXBadges Achievement Explorer is live: [explorer.waxbadges.com](https://explorer.waxbadges.com)
+* WAXBadges Achievements Explorer: [explorer.waxbadges.com](https://explorer.waxbadges.com)
+* WAXBadges CREATOR tool: [github repo](https://github.com/kdmukai/waxbadges_creator)
+* Example game integration: _coming soon_
+
 
 ## Motivation
 Current achievement systems are completely trapped within their own ecosystems--XBox gamertags, each individual mobile app, Steam trophies, even certifications for tech or skills training (e.g. Khan Academy badges).
@@ -118,22 +121,9 @@ I learned this the hard way while developing the first version of this project f
 
 
 ## For game developers
-_This section will be pulled out into its own guide once a demonstration webapp minigame is built._
+Browse through the [WAXBadges Achievements Explorer](https://explorer.waxbadges.com) to get an idea for how the achievements data is organized.
 
-Game developers who want to build on WAXBadges:
-* Create a WAX All Access account for their studio or for each individual game at [account.wax.io](https://account.wax.io).
-  * Follow the steps to generate new keys in Scatter without a Ledger.
-* Sync Scatter:
-  * Add the WAX chain details to the EOSIO in the 'Networks' section.
-  * Refresh Accounts for the keys created above. The new WAX account name should appear.
-* Buy WAX tokens and transfer them into the new WAX account.
-  * Use tokens to buy RAM in Scatter to cover expected storage costs
-    * _Much more detail to come here. Need a rough calculator for how much data will be written plus info on how to check the current price of RAM._
-  * Stake tokens for CPU and NET.
-* _Coming Soon:_ Use the WAXBadges webapp to create and manage their new Achievements ecosystem.
-  * Blockchain-savvy devs can also directly interact with the contract via `cleos` or other tools.
-* _Coming Soon:_ Refer to the demonstration webapp for how to grant achievements to users.
-  * Will also show how blockchain-savvy players can claim their achievements by linking their WAX account.
+Then head over to the [WAXBadges CREATOR tool](https://github.com/kdmukai/waxbadges_creator) for a full guide on how to get started with a WAX account and start creating your own achievements ecosystem on WAXBadges.
 
 
 
