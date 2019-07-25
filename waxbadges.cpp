@@ -89,6 +89,60 @@ public:
 
 
 
+  [[eosio::action]]
+  void ecosysowner( name ecosystem_owner,
+                    uint32_t ecosystem_id,
+                    name new_owner) {
+    check_is_contract_or_owner(ecosystem_owner);
+
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
+    auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
+    check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
+
+    // The ecosystem_owner must match the Ecosystem.account to make changes
+    check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
+
+    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
+      ecosystem.account = new_owner;
+    });
+  }
+
+
+
+  /**
+    For the sake of permanence we can only delete the Ecosystem if there are no
+    Achievements or if none of the Achievements have been granted to Users.
+
+    Ecosystems are keyed on a normal table ID via 'available_primary_key()' so
+    deleting one won't cause an ID shift the way it would for the embedded
+    vector<> objects which are keyed on index position (e.g. Category).
+  **/
+  [[eosio::action]]
+  void rmecosys(name ecosystem_owner, uint32_t ecosystem_id) {
+    check_is_contract_or_owner(ecosystem_owner);
+  
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
+    auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
+    check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
+
+    // The ecosystem_owner must match the Ecosystem.account to make changes
+    check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
+
+    auto categories = ecosystems_iter->categories;
+
+    int num_grants = 0;
+    for (auto category_iter = categories.begin(); category_iter < categories.end(); category_iter++) {
+      auto achievements = category_iter->achievements;
+      for (auto achievement_iter = achievements.begin(); achievement_iter < achievements.end(); achievement_iter++) {
+        num_grants += achievement_iter->usersgranted.size();
+      }
+    }
+
+    check(num_grants == 0, "Cannot remove an Ecosystem with granted Achievements");
+
+    ecosystems_table.erase(ecosystems_iter);
+  }
+
   /*****************************************************************************
   * CATEGORY
   *****************************************************************************/
@@ -134,26 +188,41 @@ public:
   }
 
 
-  // // [[eosio::action]]
-  // // void removecat(name ecosystem_owner, uint32_t categories_id) {
-  // //   check_is_contract_or_owner(ecosystem_owner);
-  // //
-  // //   // First zero out any references in Achievements
-  // //   auto achievements = get_achievements(ecosystem_owner);
-  // //   auto cat_achievements = achievements.get_index<"categories"_n>();
-  // //   auto ach_iter = cat_achievements.lower_bound(categories_id);
-  // //   while (ach_iter != cat_achievements.end()) {
-  // //     cat_achievements.modify(ach_iter, maybe_charge_to(ecosystem_owner), [&]( auto& org ) {
-  // //       org.categories = 0;   // Placeholder for null
-  // //     });
-  // //     ach_iter++;
-  // //   }
-  // //
-  // //   auto categories = get_categories(ecosystem_owner);
-  // //   auto ecosystems_iter = categories.find(categories_id);
-  // //   check(ecosystems_iter != categories.end(), "Categories not found");
-  // //   categories.erase(ecosystems_iter);
-  // // }
+  /**
+    Deletes the last Category in the Organization. We only allow deleting from
+    the end because we rely on vector index position as the Category key;
+    deleting from the middle would break references (e.g. social media
+    url shares that include specific category_id values).
+
+    For the sake of permanence we can only delete the Category if there are no
+    Achievements or if none of the Achievements have been granted to Users.
+  **/
+  [[eosio::action]]
+  void rmlastcat(name ecosystem_owner, uint32_t ecosystem_id) {
+    check_is_contract_or_owner(ecosystem_owner);
+  
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
+    auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
+    check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
+
+    // The ecosystem_owner must match the Ecosystem.account to make changes
+    check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
+    check(ecosystems_iter->categories.size() > 0, "No categories to remove");
+
+    auto last_category = ecosystems_iter->categories[ecosystems_iter->categories.size() - 1];
+    auto achievements = last_category.achievements;
+
+    int num_grants = 0;
+    for (auto achievement_iter = achievements.begin(); achievement_iter < achievements.end(); achievement_iter++) {
+      num_grants += achievement_iter->usersgranted.size();
+    }
+
+    check(num_grants == 0, "Cannot remove a Category with granted Achievements");
+
+    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
+      ecosystem.categories.pop_back();
+    });
+  }
 
 
 
@@ -249,6 +318,43 @@ public:
 
 
   /**
+    Deletes the last Achievement in the Category. We only allow deleting from
+    the end because we rely on vector index position as the Achievement key;
+    deleting from the middle would break references (e.g. social media
+    url shares that include specific category_id values).
+
+    For the sake of permanence we can only delete the Achievement if it has not
+    been granted to any Users yet.
+  **/
+  [[eosio::action]]
+  void rmlastach( name ecosystem_owner,
+                uint32_t ecosystem_id,
+                uint32_t category_id) {
+    check_is_contract_or_owner(ecosystem_owner);
+
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
+    auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
+    check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
+
+    // The ecosystem_owner must match the Ecosystem.account to make changes
+    check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
+
+    check(category_id < ecosystems_iter->categories.size(), "Category not found");
+
+    auto achievements = ecosystems_iter->categories[category_id].achievements;
+
+    check(
+      achievements[achievements.size() - 1].usersgranted.size() == 0,
+      "Cannot delete an Achievement that has already been granted to a User"
+    );
+
+    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
+      ecosystem.categories[category_id].achievements.pop_back();
+    });
+  }
+
+
+  /**
     For the sake of permanence we cannot allow granted Achievements to be
     deleted. The best we can offer is to "retire" them.
 
@@ -282,12 +388,13 @@ public:
   * USER
   *****************************************************************************/
   [[eosio::action]]
-  void adduser(name ecosystem_owner, uint32_t ecosystem_id, string user_name, string userid) {
+  void adduser(name ecosystem_owner, uint32_t ecosystem_id, string user_name, string userid, string avatarurl) {
     check_is_contract_or_owner(ecosystem_owner);
 
     User user;
     user.name = user_name;
     user.userid = userid;
+    user.avatarurl = avatarurl;
 
     auto ecosystems_table = get_ecosystems_table_for(get_self());
     auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
@@ -305,7 +412,7 @@ public:
 
 
   [[eosio::action]]
-  void edituser(name ecosystem_owner, uint32_t ecosystem_id, uint32_t user_id, string user_name, string userid) {
+  void edituser(name ecosystem_owner, uint32_t ecosystem_id, uint32_t user_id, string avatarurl, string user_name, string userid) {
     check_is_contract_or_owner(ecosystem_owner);
 
     auto ecosystems_table = get_ecosystems_table_for(get_self());
@@ -317,14 +424,12 @@ public:
 
     check(user_id < ecosystems_iter->users.size(), "User not found");
 
-    // Allow blank names in the case of wipeuser
-    if (user_name != "") {
-      check_name_is_unique(ecosystems_iter->users, user_name, user_id);
-    }
+    check_name_is_unique(ecosystems_iter->users, user_name, user_id);
 
     ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
       ecosystem.users[user_id].name = user_name;
       ecosystem.users[user_id].userid = userid;
+      ecosystem.users[user_id].avatarurl = avatarurl;      
     });
   }
 
@@ -333,8 +438,21 @@ public:
     Meant for possible GDPR, etc compliance issues.
   **/
   [[eosio::action]]
-  void wipeusername(name ecosystem_owner, uint32_t ecosystem_id, uint32_t user_id, string userid) {
-    edituser(ecosystem_owner, ecosystem_id, user_id, "", userid);
+  void wipeusername(name ecosystem_owner, uint32_t ecosystem_id, uint32_t user_id) {
+    check_is_contract_or_owner(ecosystem_owner);
+
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
+    auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
+    check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
+
+    // The ecosystem_owner must match the Ecosystem.account to make changes
+    check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
+
+    check(user_id < ecosystems_iter->users.size(), "User not found");
+
+    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
+      ecosystem.users[user_id].name = "";      
+    });
   }
 
 
@@ -510,6 +628,7 @@ private:
   struct User {
     string name;
     string userid;  // org's internal identifier for this user; can be empty string.
+    string avatarurl; // Asset relative to Ecosystem.assetbaseurl or full http/https url.
     string account;   // The WAX account that has claimed this user entry, if any. Must be a normal string rather than an eosio::name
     map<uint32_t, UserAchievementsList> bycategory;
   };
@@ -613,5 +732,5 @@ private:
 };
 
 
-EOSIO_DISPATCH( waxbadges, (addecosys)(editecosys)(addcat)(editcat)(addach)(editach)(retireach)(adduser)(edituser)(wipeusername)(approveclaim)(claimuser)(grantach)(wipetables) )
+EOSIO_DISPATCH( waxbadges, (addecosys)(editecosys)(ecosysowner)(rmecosys)(addcat)(editcat)(rmlastcat)(addach)(editach)(rmlastach)(retireach)(adduser)(edituser)(wipeusername)(approveclaim)(claimuser)(grantach)(wipetables) )
 

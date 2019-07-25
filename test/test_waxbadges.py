@@ -15,6 +15,7 @@ MASTER = MasterAccount()
 CONTRACT = Account()
 STUDIOA = Account()
 STUDIOB = Account()
+STUDIOC = Account()
 BOB = Account()
 CAROL = Account()
 DAVE = Account()
@@ -36,6 +37,7 @@ class Test(unittest.TestCase):
         COMMENT("Create test accounts:")
         create_account("STUDIOA", MASTER)
         create_account("STUDIOB", MASTER)
+        create_account("STUDIOC", MASTER)
         create_account("BOB", MASTER)
         create_account("CAROL", MASTER)
         create_account("DAVE", MASTER)
@@ -135,31 +137,99 @@ class Test(unittest.TestCase):
         self.assertTrue("Not authorized" in err_msg, err_msg)
 
 
-    def test_0120_account_create_separate_ecosystem(self):
-        COMMENT("Should allow a different WAX account to create its own isolated Ecosystem")
-        ecosystem_name = "A Totally Different Ecosystem"
+    def test_0120_transfer_ecosystem_owner(self):
+        COMMENT("Should allow the Ecosystem owner to transfer Ecosystem to a new owner")
+        ecosystem_name = "An Ecosystem we'll transfer"
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        num_ecosystems = len(table.json["rows"])
+
         CONTRACT.push_action(
             "addecosys",
             {
-                "ecosystem_owner": STUDIOB,
+                "ecosystem_owner": STUDIOA,
                 "ecosystem_name": ecosystem_name,
                 "description": "This is the Ecosystem description",
                 "website": "https://yetanotherdomainname.com",
                 "assetbaseurl": "yetanotherdomainname.com/static",
                 "logoassetname": "yadn_logo.png"
             },
-            permission=(STUDIOB, Permission.ACTIVE)
+            permission=(STUDIOA, Permission.ACTIVE)
         )
 
         table = CONTRACT.table("ecosystems", CONTRACT)
-        self.assertEqual(table.json["rows"][2]["name"], ecosystem_name)
+        new_ecosystem_id = len(table.json["rows"]) - 1
+        self.assertEqual(table.json["rows"][new_ecosystem_id]["name"], ecosystem_name)
 
-        # While STUDIOA still has her Orgs
+        CONTRACT.push_action(
+            "ecosysowner",
+            {
+                "ecosystem_owner": STUDIOA,
+                "ecosystem_id": new_ecosystem_id,
+                "new_owner": STUDIOC
+            },
+            permission=(STUDIOA, Permission.ACTIVE)
+        )
+
         table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertEqual(table.json["rows"][new_ecosystem_id]["account"], STUDIOC.name)
 
-        self.assertTrue(table.json["rows"][0]["name"] != ecosystem_name)
-        self.assertTrue(table.json["rows"][1]["name"] != ecosystem_name)
+        # And now STUDIOC is free to make owner-only changes
+        ecosystem_name = "Renamed by STUDIOC"
+        CONTRACT.push_action(
+            "editecosys",
+            {
+                "ecosystem_owner": STUDIOC,
+                "ecosystem_id": new_ecosystem_id,
+                "ecosystem_name": ecosystem_name,
+                "description": "This is the Ecosystem description",
+                "website": "https://somedomain.com",
+                "assetbaseurl": "someotherdomainname.com/assets",
+                "logoassetname": "company_logo.png"
+            },
+            permission=(STUDIOC, Permission.ACTIVE)
+        )
 
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertEqual(table.json["rows"][new_ecosystem_id]["name"], ecosystem_name)
+
+
+    def test_0130_delete_ecosystem(self):
+        COMMENT("Should allow a WAX account to delete an Ecosystem")
+        ecosystem_name = "An Ecosystem we'll delete"
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        num_ecosystems = len(table.json["rows"])
+
+        CONTRACT.push_action(
+            "addecosys",
+            {
+                "ecosystem_owner": STUDIOA,
+                "ecosystem_name": ecosystem_name,
+                "description": "This is the Ecosystem description",
+                "website": "https://yetanotherdomainname.com",
+                "assetbaseurl": "yetanotherdomainname.com/static",
+                "logoassetname": "yadn_logo.png"
+            },
+            permission=(STUDIOA, Permission.ACTIVE)
+        )
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        num_ecosystems = len(table.json["rows"])
+        new_ecosystem_id = num_ecosystems - 1
+        self.assertEqual(table.json["rows"][new_ecosystem_id]["name"], ecosystem_name)
+
+        CONTRACT.push_action(
+            "rmecosys",
+            {
+                "ecosystem_owner": STUDIOA,
+                "ecosystem_id": new_ecosystem_id
+            },
+            permission=(STUDIOA, Permission.ACTIVE)
+        )
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertEqual(len(table.json["rows"]), num_ecosystems - 1, table.json["rows"])
 
 
     def test_0200_account_create_category(self):
@@ -272,7 +342,8 @@ class Test(unittest.TestCase):
                 "ecosystem_owner": STUDIOA,
                 "ecosystem_id": 0,
                 "user_name": user_name,
-                "userid": "123abc"
+                "userid": "123abc",
+                "avatarurl": "bob.png"
             },
             permission=(STUDIOA, Permission.ACTIVE)
         )
@@ -290,7 +361,8 @@ class Test(unittest.TestCase):
                 "ecosystem_owner": STUDIOA,
                 "ecosystem_id": 0,
                 "user_name": user_name,
-                "userid": "34563543"
+                "userid": "34563543",
+                "avatarurl": "34563543.png"
             },
             permission=(STUDIOA, Permission.ACTIVE)
         )
@@ -404,7 +476,6 @@ class Test(unittest.TestCase):
         self.assertEqual(table.json["rows"][0]["categories"][0]["achievements"][achievement_id]["name"], new_achievement_name)
 
 
-
     def test_0710_edit_granted_achievement_fails(self):
         COMMENT("Should prevent an WAX account from editing an Achievement that has been granted at least once")
         achievement_id = 0
@@ -433,6 +504,213 @@ class Test(unittest.TestCase):
         self.assertTrue("Cannot edit" in err_msg, err_msg)
 
         self.assertTrue(table.json["rows"][0]["categories"][0]["achievements"][achievement_id]["name"] != new_achievement_name)
+
+
+    def test_0750_rmecosys_with_granted_achievement_fails(self):
+        COMMENT("Should prevent an WAX account from deleting an Ecosystem that has an Achievement that has been granted at least once")
+        ecosystem_id = 0
+        achievement_id = 0
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        ecosystem_name = table.json["rows"][ecosystem_id]["name"]
+        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"]) == 1)
+        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"][0]["achievements"][achievement_id]["usersgranted"]) > 0)
+
+        with self.assertRaises(Exception) as e:
+            CONTRACT.push_action(
+                "rmecosys",
+                {
+                    "ecosystem_owner": STUDIOA,
+                    "ecosystem_id": ecosystem_id,
+                },
+                permission=(STUDIOA, Permission.ACTIVE)
+            )
+
+        err_msg = str(e.exception)
+        self.assertTrue("Cannot remove an Ecosystem with granted Achievements" in err_msg, err_msg)
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertEqual(table.json["rows"][ecosystem_id]["name"], ecosystem_name)
+
+
+    def test_0760_rmlastcat_with_granted_achievement_fails(self):
+        COMMENT("Should prevent an WAX account from deleting the last Category that has an Achievement that has been granted at least once")
+        ecosystem_id = 0
+        achievement_id = 0
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"]) == 1)
+        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"][0]["achievements"][achievement_id]["usersgranted"]) > 0)
+
+        with self.assertRaises(Exception) as e:
+            CONTRACT.push_action(
+                "rmlastcat",
+                {
+                    "ecosystem_owner": STUDIOA,
+                    "ecosystem_id": ecosystem_id,
+                },
+                permission=(STUDIOA, Permission.ACTIVE)
+            )
+
+        err_msg = str(e.exception)
+        self.assertTrue("Cannot remove a Category with granted Achievements" in err_msg, err_msg)
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"]) == 1)
+
+
+    def test_0770_rmlastcat_delete_category(self):
+        COMMENT("Should allow a WAX account to delete the last Category if it has no Achievements or none that have been granted")
+        ecosystem_id = 0
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"]) == 1)
+        initial_category_name = table.json["rows"][ecosystem_id]["categories"][0]["name"]
+
+        # First delete a newly-added empty Category
+        category_name = "Second Category"
+        CONTRACT.push_action(
+            "addcat",
+            {
+                "ecosystem_owner": STUDIOA,
+                "ecosystem_id": ecosystem_id,
+                "category_name": category_name
+            },
+            permission=(STUDIOA, Permission.ACTIVE)
+        )
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"]) == 2)
+
+        CONTRACT.push_action(
+            "rmlastcat",
+            {
+                "ecosystem_owner": STUDIOA,
+                "ecosystem_id": ecosystem_id,
+            },
+            permission=(STUDIOA, Permission.ACTIVE),
+            force_unique=True
+        )
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"]) == 1)
+
+        # Now delete a Category that has an Achievement that isn't granted
+        category_name = "Another Category"
+        CONTRACT.push_action(
+            "addcat",
+            {
+                "ecosystem_owner": STUDIOA,
+                "ecosystem_id": 0,
+                "category_name": category_name
+            },
+            permission=(STUDIOA, Permission.ACTIVE)
+        )
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"]) == 2)
+
+        achievement_name = "Some amazing achievement"
+        CONTRACT.push_action(
+            "addach",
+            {
+                "ecosystem_owner": STUDIOA,
+                "ecosystem_id": ecosystem_id,
+                "category_id": 1,
+                "achievement_name": achievement_name,
+                "description": "This is the achievement description!",
+                "assetname": "hotdog.png",
+                "maxquantity": 999
+            },
+            permission=(STUDIOA, Permission.ACTIVE)
+        )
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"][1]["achievements"]) == 1)
+
+        # Can still delete it
+        CONTRACT.push_action(
+            "rmlastcat",
+            {
+                "ecosystem_owner": STUDIOA,
+                "ecosystem_id": ecosystem_id,
+            },
+            permission=(STUDIOA, Permission.ACTIVE),
+            force_unique=True
+        )
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"]) == 1)
+        self.assertEqual(table.json["rows"][ecosystem_id]["categories"][0]["name"], initial_category_name)
+
+
+    def test_0780_rmlastach_with_granted_achievement_fails(self):
+        COMMENT("Should not allow a WAX account to delete an Achievement that has been granted to a User")
+
+        ecosystem_id = 0
+        category_id = 0
+        last_achievement_id = 3
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertEqual(len(table.json["rows"][ecosystem_id]["categories"][category_id]["achievements"]), last_achievement_id + 1)
+        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"][category_id]["achievements"][last_achievement_id]["usersgranted"]) > 0)
+
+        with self.assertRaises(Exception) as e:
+            CONTRACT.push_action(
+                "rmlastach",
+                {
+                    "ecosystem_owner": STUDIOA,
+                    "ecosystem_id": ecosystem_id,
+                    "category_id": ecosystem_id,
+                },
+                permission=(STUDIOA, Permission.ACTIVE)
+            )
+
+        err_msg = str(e.exception)
+        self.assertTrue("Cannot delete an Achievement that has already been granted to a User" in err_msg, err_msg)
+
+
+    def test_0790_rmlastach_delete_achievement(self):
+        COMMENT("Should allow a WAX account to delete an Achievement that has not been granted to a User")
+
+        ecosystem_id = 0
+        category_id = 0
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        num_achievements = len(table.json["rows"][ecosystem_id]["categories"][category_id]["achievements"])
+
+        achievement_name = "Achievement to delete"
+        CONTRACT.push_action(
+            "addach",
+            {
+                "ecosystem_owner": STUDIOA,
+                "ecosystem_id": 0,
+                "category_id": 0,
+                "achievement_name": achievement_name,
+                "description": "",
+                "assetname": "deleteme.png",
+                "maxquantity": 999
+            },
+            permission=(STUDIOA, Permission.ACTIVE)
+        )
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        new_num_achievements = len(table.json["rows"][ecosystem_id]["categories"][category_id]["achievements"])
+        self.assertEqual(num_achievements, new_num_achievements - 1)
+
+        CONTRACT.push_action(
+            "rmlastach",
+            {
+                "ecosystem_owner": STUDIOA,
+                "ecosystem_id": ecosystem_id,
+                "category_id": ecosystem_id,
+            },
+            permission=(STUDIOA, Permission.ACTIVE)
+        )
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        new_num_achievements = len(table.json["rows"][ecosystem_id]["categories"][category_id]["achievements"])
+        self.assertEqual(num_achievements, new_num_achievements)
 
 
     def test_0800_approve_claim(self):
