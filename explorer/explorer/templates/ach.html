@@ -1,11 +1,25 @@
 {% extends "_base.html" %}
 
 
-{% block meta_title %}{{ ach.name }} | {{ ecosystem.name }} | WAXBadges Achievements Explorer{% endblock %}
+{% block meta_title %}&quot;{{ achievement.name }}&quot; | {{ ecosystem.name }}{% endblock %}
 
-{% block meta_description %}{{ ach.description }}{% endblock %}
 
-{% block header_title %}{{ ach.name }} | {{ ecosystem.name }} | WAXBadges Achievements Explorer{% endblock %}
+{% block meta_description %}{{ achievement.description }} | {{ ecosystem.name }}{% endblock %}
+
+
+{% block meta_image %}https://{{ ecosystem.assetbaseurl }}/{{ achievement.assetname }}{% endblock %}
+
+
+{% block twitter_card %}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@WAXBadges">
+    <meta name="twitter:title" content="&quot;{{ achievement.name }}&quot; | {{ ecosystem.name }}">
+    <meta name="twitter:description" content="{{ achievement.description }} | WAXBadges Achievements Explorer">
+    <meta name="twitter:image" content="https://{{ ecosystem.assetbaseurl }}/{{ achievement.assetname }}">
+{% endblock %}
+
+
+{% block header_title %}&quot;{{ achievement.name }}&quot; | {{ ecosystem.name }} | WAXBadges Achievements Explorer{% endblock %}
 
 
 
@@ -44,9 +58,66 @@
             height: 3.2em;
             overflow: hidden;
         }
+
+        .usergrants {
+            margin-top: 2em;
+            padding: 1em;
+            border-radius: 1em;
+            background-color: #222;
+            border: 1px solid black;
+            text-align: center;
+            margin-bottom: 3em;
+        }
+        .usergrant {
+            text-align: center;
+            width: 200px;
+            padding: 0.125em;
+            padding-top: 0.5em;
+            margin: 0.25em;
+            background-color: #333;
+            border: 1px solid #444;
+            display: inline-block;
+            clear: left;
+            vertical-align: top;
+            position: relative;
+        }
+        .usergrant:hover {
+            cursor: pointer;
+            background-color: #444;
+        }
+        .usergrant img {
+            float: left;
+            margin-left: 0.5em;
+            margin-right: 0.25em;
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5em;
+        }
+        .username {
+            font-size: 0.8em;
+        }
+        .timestamp {
+            font-size: 0.7em;
+            color: #555;
+        }
     </style>
 {% endblock %}
 
+
+
+
+{% block social_media_shares %}
+    <div class="tweet_button">
+        <a class="twitter-share-button"
+          href="https://twitter.com/intent/tweet"
+          data-size="large"
+          data-text="The &quot;{{ achievement.name }}&quot; achievement from {{ ecosystem.name }}"
+          data-url="https://explorer.waxbadges.com/ach/{{ ecosystem.key }}/{{ category_id }}/{{ achievement.key }}"
+          data-related="WAXBadges">
+        Tweet
+        </a>
+    </div>
+{% endblock %}
 
 
 
@@ -56,11 +127,39 @@
     <div id="ecosystem_description">{{ ecosystem.description }}</div>
 
     <div class="achievement">
-        <img class="ach_asset" src="//{{ ecosystem.assetbaseurl }}/{{ ach.assetname }}"/>
-        <div class="ach_name">{{ ach.name }}</div>
-        <div class="ach_quantity">max: {{ ach.maxquantity }}</div>
-        <div class="ach_description">{{ ach.description }}</div>
+        <img class="ach_asset" src="//{{ ecosystem.assetbaseurl }}/{{ achievement.assetname }}"/>
+        <div class="ach_name">{{ achievement.name }}</div>
+        <div class="ach_quantity">max: {{ achievement.maxquantity }}</div>
+        <div class="ach_description">{{ achievement.description }}</div>
     </div>
+
+    <div class="usergrants">
+        <div class="section_title">User Grants</div>
+        {% for usergrant in usergrants %}
+            <div class="usergrant" id="usergrant_{{ usergrant.user.user_id }}">
+                <img src="{{ usergrant.user.avatarurl }}"/>
+                <span class="username">{{ usergrant.user.name }}</span>
+                <div class="timestamp">{{ usergrant.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+
+
+{% block js_content %}
+<script>
+    
+    $(document).ready(function() {
+        // Wire up onclicks for granted users
+        {% for usergrant in usergrants %}
+            $("#usergrant_{{ usergrant.user.user_id }}").click(function() {
+                location.href = "/poa/{{ ecosystem.key }}/{{ category_id }}/{{ achievement.key }}/{{ usergrant.user.user_id }}";
+            });
+        {% endfor %}
+    });
+
+</script>
 {% endblock %}
 
 

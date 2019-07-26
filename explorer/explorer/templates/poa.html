@@ -1,0 +1,244 @@
+{% extends "_base.html" %}
+
+
+{% block meta_title %}{{ user.name }} earned &quot;{{ achievement.name }}&quot;!{% endblock %}
+
+
+{% block meta_description %}{{ achievement.description }} | {{ ecosystem.name }} | WAXBadges Achievements Explorer{% endblock %}
+
+
+{% block meta_image %}https://{{ ecosystem.assetbaseurl }}/{{ achievement.assetname }}{% endblock %}
+
+
+{% block twitter_card %}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@WAXBadges">
+    <meta name="twitter:title" content="{{ user.name }} earned &quot;{{ achievement.name }}&quot;!">
+    <meta name="twitter:description" content="{{ achievement.description }} | {{ ecosystem.name }} | WAXBadges Achievements Explorer">
+    <meta name="twitter:image" content="https://{{ ecosystem.assetbaseurl }}/{{ achievement.assetname }}">
+{% endblock %}
+
+
+{% block header_title %}{{ user.name }} earned &quot;{{ achievement.name }}&quot;! | {{ ecosystem.name }} | WAXBadges Achievements Explorer{% endblock %}
+
+
+
+{% block header_content %}
+    <style>
+        #ecosystem_name {
+        }
+
+        #ecosystem_website {
+            text-align: center;
+            font-size: 0.7em;
+        }
+        #ecosystem_description {
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .achievement {
+            margin: auto;
+            margin-top: 2em;
+            padding: 1em;
+            border-radius: 1em;
+            border: 1px solid #6cc7cc;
+            background-color: #222;
+            text-align: center;
+            max-width: 650px;
+        }
+
+        .ach_asset {
+            float: right;
+            margin-left: 1em;
+            width: 200px;
+            height: 200px;
+            border-radius: 1em;
+        }
+        @media only screen and (max-width: 570px) {
+            .ach_asset {
+                float: none;
+                text-align: center;
+                margin-left: 0.5em;
+                margin-right: 0.5em;
+            }
+        }
+        @media only screen and (max-width: 310px) {
+            .ach_asset {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        .ach_name {
+            font-size: 2em;
+        }
+        .details {
+            text-align: left;
+            color: #666;
+            font-size: 0.75em;
+            line-height: 1.2em;
+        }
+        .details td {
+            padding: 0.25em;
+        }
+        .label {
+            text-align: right;
+            padding-right: 0.25em;
+            vertical-align: top;
+        }
+        .value {
+            color: #d8d8d8;
+        }
+        .ach_quantity {
+            font-size: 0.6em;
+            color: #666;
+        }
+        .ach_description {
+            font-size: 0.8em;
+            color: #999;
+            line-height: 1.2em;
+            height: 3.2em;
+            overflow: hidden;
+        }
+
+        .user {
+            padding: 0.25em;
+            background-color: #111;
+            text-align: left;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5em;
+        }
+        .username {
+            vertical-align: top;
+            font-size: 1.2em;
+            color: #6cc7cc;
+        }
+        .timestamp {
+            font-size: 0.7em;
+            color: #555;
+        }
+
+        .raw_blockchain_container {
+            margin-top: 0.5em;
+            text-align: center;
+            font-size: 0.75em;
+        }
+
+        .info {
+            margin-top: 6em;
+            margin-left: -1em;
+            margin-right: -1em;
+            margin-bottom: -1em;
+            padding-top: 2em;
+            padding-left: 0.25em;
+            padding-right: 0.25em;
+            border-top: 4px solid #6cc7cc;
+            background-color: #2c878c;
+            background-image: linear-gradient(#2c878c 30%, #6cc7cc);
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            padding-bottom: 3em;
+            color: #333;
+        }
+        .tagline {
+            font-style: italic;
+            text-align: center;
+            margin-bottom: 1em;
+        }
+        .info_text {
+            max-width: 700px;
+            margin: auto;
+            font-size: 0.8em;
+        }
+        .info a {
+            color: #d8d8d8;
+        }
+        .info a:hover {
+            color: white;
+        }
+    </style>
+{% endblock %}
+
+
+
+
+{% block social_media_shares %}
+    <div class="tweet_button">
+        <a class="twitter-share-button"
+          href="https://twitter.com/intent/tweet"
+          data-size="large"
+          data-text="Proof-of-Achievement: I earned the &quot;{{ achievement.name }}&quot; achievement from {{ ecosystem.name }}!"
+          data-url="https://explorer.waxbadges.com/poa/{{ ecosystem.key }}/{{ category_id }}/{{ achievement.key }}/{{ user.key }}"
+          data-related="WAXBadges">
+        Tweet
+        </a>
+    </div>
+{% endblock %}
+
+
+
+{% block main_content %}
+    <div id="ecosystem_name" class="page_title">{{ ecosystem.name }}</div>
+    <div id="ecosystem_website"><a href="{{ ecosystem.website }}" target="_new">{{ ecosystem.website }}</a></div>
+    <div id="ecosystem_description">{{ ecosystem.description }}</div>
+
+
+    <div class="achievement">
+
+        <img class="ach_asset" src="//{{ ecosystem.assetbaseurl }}/{{ achievement.assetname }}"/>
+
+        <div class="ach_name">{{ achievement.name }}</div>
+
+        <div class="details">
+            <table>
+                <tr>
+                    <td class="label">user:</td>
+                    <td>
+                        <div class="user">
+                            <img src="{{ user.avatarurl }}" class="avatar" /> <span class="username">{{ user.name }}</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">awarded:</td>
+                    <td class="value">{{ timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                </tr>
+                <tr>
+                    <td class="label">description:</td>
+                    <td class="value">{{ achievement.description }}</td>
+                </tr>
+                <tr>
+                    <td class="label">max&nbsp;avail:</td>
+                    <td class="value">{% if achievement.maxquantity == 0 %}unlimited{% else %}{{ achievement.maxquantity }}{% endif %}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+
+    <div class="raw_blockchain_container">
+        raw blockchain data: <a href="https://wax.bloks.io/contract?tab=Tables&table=ecosystems&account=waxbadgesftw&scope=waxbadgesftw" target="_new">wax.blocks.io</a>
+    </div>
+
+    <div class="info">
+        <div class="page_title">About WAXBadges</div>
+
+        <div class="tagline">Achievements logged on the blockchain for eternity! Keep what you earn!</div>
+
+        <div class="info_text">
+            WAXBadges is an open Achievements platform that safely preserves user achievements forever on the WAX blockchain. Even if the game or company behind it disappears, your achievements will always live on!
+
+            <p>Learn more at <a href="https://github.com/kdmukai/waxbadges" target="_new">https://github.com/kdmukai/waxbadges</a>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+
+
+
