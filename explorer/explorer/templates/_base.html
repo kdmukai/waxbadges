@@ -2,8 +2,13 @@
 <html lang="en">
     <header>
         <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+
         <meta property="og:title" content="{% block meta_title %}WAXBadges Achievements Explorer{% endblock %}" />
         <meta property="og:description" content="{% block meta_description %}{% endblock %}" />
+        <meta property="og:image" content="{% block meta_image %}{% endblock %}" />
+
+        {% block twitter_card %}
+        {% endblock %}
 
         <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='img/favicon/apple-touch-icon.png') }}">
         <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='img/favicon/favicon-32x32.png') }}">
@@ -18,15 +23,47 @@
 
         <link href="{{ url_for('static', filename='explorer.css') }}" rel="stylesheet">
 
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+        <style>
+            .tweet_button {
+                position: absolute;
+                top: 0.5em;
+                right: 1em;
+            }
+        </style>
         {% block header_content %}
         {% endblock %}
+
+
+        <script>window.twttr = (function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0],
+            t = window.twttr || {};
+          if (d.getElementById(id)) return t;
+          js = d.createElement(s);
+          js.id = id;
+          js.src = "https://platform.twitter.com/widgets.js";
+          fjs.parentNode.insertBefore(js, fjs);
+
+          t._e = [];
+          t.ready = function(f) {
+            t._e.push(f);
+          };
+
+          return t;
+        }(document, "script", "twitter-wjs"));</script>
+
   </header>
   <body>
+    {% block social_media_shares %}{% endblock %}
     <a href="/"><img width="175" height="36" src="{{ url_for('static', filename='img/waxbadges_logo_350x72.png') }}" /></a>
 
     <div class="main_content">
       {% block main_content %}
       {% endblock %}
     </div>
+
+    {% block js_content %}
+    {% endblock %}
   </body>
 </html>

@@ -307,15 +307,18 @@ cleos wallet create -n waxbadges --to-console
 cleos wallet open -n waxbadges 
 cleos wallet unlock -n waxbadges 
 cleos wallet import -n waxbadges 
-cleos -u https://chain.wax.io set contract waxbadgesftw /path/to/contracts/waxbadges -p waxbadgesftw@active
 
 cleos -u https://chain.wax.io push action waxbadgesftw wipetables '[]' -p waxbadgesftw@active
+
+cleos -u https://chain.wax.io set contract waxbadgesftw /path/to/contracts/waxbadges -p waxbadgesftw@active
 
 cleos -u https://chain.wax.io push action waxbadgesftw addecosys '["waxbadgesftw", "WAXBadges Genesis Campaign", "https://waxbadges.com", "explorer.waxbadges.com/assets", "waxbadges_logo.png"]' -p waxbadgesftw@active
 
 cleos -u https://chain.wax.io push action waxbadgesftw addcat '["waxbadgesftw", "0", "twitter"]' -p waxbadgesftw@active
 
 cleos -u https://chain.wax.io push action waxbadgesftw addach '["waxbadgesftw", "0", "0", "First", "First achievement ever. First 50 to follow @WAXBadges.", "ach_hand.png", "50"]' -p waxbadgesftw@active
+
+cleos -u https://chain.wax.io get table waxbadgesftw waxbadgesftw ecosystems
 ```
 
 

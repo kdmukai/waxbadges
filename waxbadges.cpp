@@ -134,7 +134,7 @@ public:
     for (auto category_iter = categories.begin(); category_iter < categories.end(); category_iter++) {
       auto achievements = category_iter->achievements;
       for (auto achievement_iter = achievements.begin(); achievement_iter < achievements.end(); achievement_iter++) {
-        num_grants += achievement_iter->usersgranted.size();
+        num_grants += achievement_iter->usergrants.size();
       }
     }
 
@@ -214,7 +214,7 @@ public:
 
     int num_grants = 0;
     for (auto achievement_iter = achievements.begin(); achievement_iter < achievements.end(); achievement_iter++) {
-      num_grants += achievement_iter->usersgranted.size();
+      num_grants += achievement_iter->usergrants.size();
     }
 
     check(num_grants == 0, "Cannot remove a Category with granted Achievements");
@@ -302,7 +302,7 @@ public:
     check(achievement_id < achievements.size(), "Achievement not found");
 
     check(
-      achievements[achievement_id].usersgranted.size() == 0,
+      achievements[achievement_id].usergrants.size() == 0,
       "Cannot edit an Achievement that has already been granted to a User"
     );
 
@@ -344,7 +344,7 @@ public:
     auto achievements = ecosystems_iter->categories[category_id].achievements;
 
     check(
-      achievements[achievements.size() - 1].usersgranted.size() == 0,
+      achievements[achievements.size() - 1].usergrants.size() == 0,
       "Cannot delete an Achievement that has already been granted to a User"
     );
 
@@ -412,7 +412,7 @@ public:
 
 
   [[eosio::action]]
-  void edituser(name ecosystem_owner, uint32_t ecosystem_id, uint32_t user_id, string avatarurl, string user_name, string userid) {
+  void edituser(name ecosystem_owner, uint32_t ecosystem_id, uint32_t user_id, string user_name, string userid, string avatarurl) {
     check_is_contract_or_owner(ecosystem_owner);
 
     auto ecosystems_table = get_ecosystems_table_for(get_self());
@@ -558,16 +558,26 @@ public:
 
     auto achievement = ecosystems_iter->categories[category_id].achievements[achievement_id];
     check(achievement.active, "Achievement is not active");
-    check(achievement.maxquantity == 0 || achievement.usersgranted.size() < achievement.maxquantity, "Achievement max quantity has been reached");
+    check(achievement.maxquantity == 0 || achievement.usergrants.size() < achievement.maxquantity, "Achievement max quantity has been reached");
+
+    // Avoid duplicate grants
+    for (auto usergrant_iter = achievement.usergrants.begin(); usergrant_iter < achievement.usergrants.end(); usergrant_iter++) {
+      check(user_id != usergrant_iter->user_id, "Achievement already granted to this User");
+    }
 
     UserAchievement userachievement;
+    userachievement.category_id = category_id;
     userachievement.achievement_id = achievement_id;
     userachievement.timestamp = timestamp;
 
+    UserGrant usergrant;
+    usergrant.user_id = user_id;
+    usergrant.timestamp = timestamp;
+
     ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
       // We log grants in two directions: on the User and on the Achievement
-      ecosystem.users[user_id].bycategory[category_id].userachievements.push_back(userachievement);
-      ecosystem.categories[category_id].achievements[achievement_id].usersgranted.push_back(user_id);
+      ecosystem.users[user_id].userachievements.push_back(userachievement);
+      ecosystem.categories[category_id].achievements[achievement_id].usergrants.push_back(usergrant);
     });
   }
 
@@ -597,17 +607,18 @@ public:
 private:
   // All tables will be created in the contract's scope
 
-  /**
-    An ecosystem_owner can run multiple Ecosystems, each of which will have their
-    own Ecosystems entry.
-  **/
+  struct UserGrant {
+    uint32_t user_id;
+    uint32_t timestamp;   // Unix timestamp
+  };
+
   struct Achievement {
     string name;
     string description;
     string assetname;   // relative to the Ecosystem's assetbaseurl: "sometrophy.png" or "subdir/sometrophy.png"
     uint32_t maxquantity;   // 0 == no max set
     bool active = true;
-    vector<uint32_t> usersgranted;
+    vector<UserGrant> usergrants;
   };
 
   struct Category {
@@ -616,26 +627,23 @@ private:
   };
 
   struct UserAchievement {
+    uint32_t category_id;
     uint32_t achievement_id;
     uint32_t timestamp;   // Unix timestamp
   };
 
-  // Only a separate struct because WAX can't handle directly nested collections
-  struct UserAchievementsList {
-    vector<UserAchievement> userachievements;
-  };
-
   struct User {
-    string name;
-    string userid;  // org's internal identifier for this user; can be empty string.
+    string name;      // display name
+    string userid;    // org's internal identifier for this user
     string avatarurl; // Asset relative to Ecosystem.assetbaseurl or full http/https url.
     string account;   // The WAX account that has claimed this user entry, if any. Must be a normal string rather than an eosio::name
-    map<uint32_t, UserAchievementsList> bycategory;
+    vector<UserAchievement> userachievements;
   };
 
 
   /**
-    The ONE and ONLY table that gets written to WAX storage!
+    An ecosystem_owner can run multiple Ecosystems, each of which will have their
+    own Ecosystems entry.
   **/
   struct [[eosio::table]] Ecosystem {
     uint32_t key;

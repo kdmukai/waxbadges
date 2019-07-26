@@ -387,7 +387,35 @@ class Test(unittest.TestCase):
         )
 
         table = CONTRACT.table("ecosystems", CONTRACT)
-        self.assertEqual(table.json["rows"][0]["users"][0]["bycategory"][0]["value"]["userachievements"][0]["achievement_id"], 0)
+        self.assertEqual(table.json["rows"][0]["users"][0]["userachievements"][0]["achievement_id"], 0)
+
+
+    def test_0601_account_grant_same_achievement_fails(self):
+        COMMENT("Should not allow a WAX account to grant a User the same Achievement twice")
+
+        user_id = 0
+        achievement_id = 0
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertEqual(table.json["rows"][0]["users"][user_id]["userachievements"][0]["achievement_id"], achievement_id)
+
+        with self.assertRaises(Exception) as e:
+            CONTRACT.push_action(
+                "grantach",
+                {
+                    "ecosystem_owner": STUDIOA,
+                    "ecosystem_id": 0,
+                    "user_id": user_id,
+                    "category_id": 0,
+                    "achievement_id": achievement_id,
+                    "timestamp": round(time.time())
+                },
+                permission=(STUDIOA, Permission.ACTIVE),
+                force_unique=True
+            )
+
+        err_msg = str(e.exception)
+        self.assertTrue("Achievement already granted to this User" in err_msg, err_msg)
 
 
     def test_0610_account_grant_another_achievement(self):
@@ -406,7 +434,7 @@ class Test(unittest.TestCase):
         )
 
         table = CONTRACT.table("ecosystems", CONTRACT)
-        self.assertEqual(table.json["rows"][0]["users"][0]["bycategory"][0]["value"]["userachievements"][1]["achievement_id"], 1)
+        self.assertEqual(table.json["rows"][0]["users"][0]["userachievements"][1]["achievement_id"], 1)
 
 
     def test_0620_account_grant_limited_achievement(self):
@@ -425,7 +453,7 @@ class Test(unittest.TestCase):
         )
 
         table = CONTRACT.table("ecosystems", CONTRACT)
-        self.assertEqual(table.json["rows"][0]["users"][0]["bycategory"][0]["value"]["userachievements"][2]["achievement_id"], 3)
+        self.assertEqual(table.json["rows"][0]["users"][0]["userachievements"][2]["achievement_id"], 3)
 
 
     def test_0621_account_grant_limited_achievement_fails_at_max(self):
@@ -433,7 +461,7 @@ class Test(unittest.TestCase):
 
         table = CONTRACT.table("ecosystems", CONTRACT)
         self.assertEqual(table.json["rows"][0]["categories"][0]["achievements"][3]["maxquantity"], 1)
-        self.assertEqual(len(table.json["rows"][0]["categories"][0]["achievements"][3]["usersgranted"]), 1)
+        self.assertEqual(len(table.json["rows"][0]["categories"][0]["achievements"][3]["usergrants"]), 1)
 
         with self.assertRaises(Exception) as e:
             CONTRACT.push_action(
@@ -482,7 +510,7 @@ class Test(unittest.TestCase):
         new_achievement_name = "New name that will fail"
 
         table = CONTRACT.table("ecosystems", CONTRACT)
-        self.assertTrue(len(table.json["rows"][0]["categories"][0]["achievements"][achievement_id]["usersgranted"]) > 0)
+        self.assertTrue(len(table.json["rows"][0]["categories"][0]["achievements"][achievement_id]["usergrants"]) > 0)
 
         with self.assertRaises(Exception) as e:
             CONTRACT.push_action(
@@ -514,7 +542,7 @@ class Test(unittest.TestCase):
         table = CONTRACT.table("ecosystems", CONTRACT)
         ecosystem_name = table.json["rows"][ecosystem_id]["name"]
         self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"]) == 1)
-        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"][0]["achievements"][achievement_id]["usersgranted"]) > 0)
+        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"][0]["achievements"][achievement_id]["usergrants"]) > 0)
 
         with self.assertRaises(Exception) as e:
             CONTRACT.push_action(
@@ -540,7 +568,7 @@ class Test(unittest.TestCase):
 
         table = CONTRACT.table("ecosystems", CONTRACT)
         self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"]) == 1)
-        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"][0]["achievements"][achievement_id]["usersgranted"]) > 0)
+        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"][0]["achievements"][achievement_id]["usergrants"]) > 0)
 
         with self.assertRaises(Exception) as e:
             CONTRACT.push_action(
@@ -653,7 +681,7 @@ class Test(unittest.TestCase):
 
         table = CONTRACT.table("ecosystems", CONTRACT)
         self.assertEqual(len(table.json["rows"][ecosystem_id]["categories"][category_id]["achievements"]), last_achievement_id + 1)
-        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"][category_id]["achievements"][last_achievement_id]["usersgranted"]) > 0)
+        self.assertTrue(len(table.json["rows"][ecosystem_id]["categories"][category_id]["achievements"][last_achievement_id]["usergrants"]) > 0)
 
         with self.assertRaises(Exception) as e:
             CONTRACT.push_action(
