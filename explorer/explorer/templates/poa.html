@@ -121,44 +121,17 @@
             font-size: 0.7em;
             color: #555;
         }
+        .vmiddle {
+            vertical-align: middle;
+        }
+        .tweet_button {
+            margin-bottom: -0.5em;
+        }
 
         .raw_blockchain_container {
             margin-top: 0.5em;
             text-align: center;
             font-size: 0.75em;
-        }
-
-        .info {
-            margin-top: 6em;
-            margin-left: -1em;
-            margin-right: -1em;
-            margin-bottom: -1em;
-            padding-top: 2em;
-            padding-left: 0.25em;
-            padding-right: 0.25em;
-            border-top: 4px solid #6cc7cc;
-            background-color: #2c878c;
-            background-image: linear-gradient(#2c878c 30%, #6cc7cc);
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            padding-bottom: 3em;
-            color: #333;
-        }
-        .tagline {
-            font-style: italic;
-            text-align: center;
-            margin-bottom: 1em;
-        }
-        .info_text {
-            max-width: 700px;
-            margin: auto;
-            font-size: 0.8em;
-        }
-        .info a {
-            color: #d8d8d8;
-        }
-        .info a:hover {
-            color: white;
         }
     </style>
 {% endblock %}
@@ -166,18 +139,10 @@
 
 
 
-{% block social_media_shares %}
-    <div class="tweet_button">
-        <a class="twitter-share-button"
-          href="https://twitter.com/intent/tweet"
-          data-size="large"
-          data-text="Proof-of-Achievement: I earned the &quot;{{ achievement.name }}&quot; achievement from {{ ecosystem.name }}!"
-          data-url="https://explorer.waxbadges.com/poa/{{ ecosystem.key }}/{{ category_id }}/{{ achievement.key }}/{{ user.key }}"
-          data-related="WAXBadges">
-        Tweet
-        </a>
-    </div>
+{% block breadcrumbing %}
+    <a href="/">home</a> > <a href="/ecosys/{{ ecosystem.key }}">{{ ecosystem.name }}</a> > <a href="/ach/{{ ecosystem.key }}/{{ category_id }}/{{ achievement.key }}">{{ achievement.name }}</a> > Proof-of-Achievement
 {% endblock %}
+
 
 
 
@@ -213,8 +178,22 @@
                 </tr>
                 <tr>
                     <td class="label">max&nbsp;avail:</td>
-                    <td class="value">{% if achievement.maxquantity == 0 %}unlimited{% else %}{{ achievement.maxquantity }}{% endif %}</td>
+                    <td class="value">{{ achievement.maxquantity }}</td>
                 </tr>
+                <tr>
+                    <td class="label vmiddle">share:</td>
+                    <td class="value">
+                        <div class="tweet_button">
+                            <a class="twitter-share-button"
+                              href="https://twitter.com/intent/tweet"
+                              data-size="large"
+                              data-text="Proof-of-Achievement: I earned the &quot;{{ achievement.name }}&quot; achievement from {{ ecosystem.name }}!"
+                              data-url="https://explorer.waxbadges.com/poa/{{ ecosystem.key }}/{{ category_id }}/{{ achievement.key }}/{{ user.key }}"
+                              data-related="WAXBadges">
+                            Tweet
+                            </a>
+                        </div>
+                    </td>
             </table>
         </div>
         <div class="clearfix"></div>
@@ -223,20 +202,6 @@
     <div class="raw_blockchain_container">
         raw blockchain data: <a href="https://wax.bloks.io/contract?tab=Tables&table=ecosystems&account=waxbadgesftw&scope=waxbadgesftw" target="_new">wax.blocks.io</a>
     </div>
-
-    <div class="info">
-        <div class="page_title">About WAXBadges</div>
-
-        <div class="tagline">Achievements logged on the blockchain for eternity! Keep what you earn!</div>
-
-        <div class="info_text">
-            WAXBadges is an open Achievements platform that safely preserves user achievements forever on the WAX blockchain. Even if the game or company behind it disappears, your achievements will always live on!
-
-            <p>Learn more at <a href="https://github.com/kdmukai/waxbadges" target="_new">https://github.com/kdmukai/waxbadges</a>
-        </div>
-
-    </div>
-
 {% endblock %}
 
 

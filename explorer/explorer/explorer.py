@@ -86,6 +86,13 @@ def get_achievement(ecosys_key, cat_key, key):
     ecosystem = ecosystems.get('rows', [])[0]
     achievement = ecosystem.get('categories')[int(cat_key)].get('achievements')[int(key)]
     achievement['key'] = int(key)
+
+    if achievement['maxquantity'] == 0:
+        achievement['num_available'] = 'unlimited'
+        achievement['maxquantity'] = 'unlimited'
+    else:
+        achievement['num_available'] = achievement['maxquantity'] - len(achievement.get('usergrants', []))
+
     users = []
     for usergrant in achievement.get('usergrants'):
         user = ecosystem.get('users')[usergrant.get('user_id')]
@@ -126,6 +133,10 @@ def get_proofofachievement(ecosys_key, cat_key, ach_key, user_key):
     ecosystem = ecosystems.get('rows', [])[0]
     achievement = ecosystem.get('categories')[int(cat_key)].get('achievements')[int(ach_key)]
     achievement['key'] = int(ach_key)
+
+    if achievement['maxquantity'] == 0:
+        achievement['maxquantity'] = 'unlimited'
+
     user = ecosystem.get('users')[int(user_key)]
     user['key'] = int(user_key)
     if not user.get('avatarurl').startswith('http'):

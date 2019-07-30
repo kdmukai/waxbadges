@@ -272,9 +272,9 @@ public:
 
 
   /**
-    Editing an achievement risks upsetting our expectation of permanence. For
-    now we only allow editing an Achievement that hasn't been granted to any
-    Users.
+    Editing an achievement risks upsetting our expectation of permanence. The
+    full Achievement details can only be updated if it hasn't already been
+    granted to a User (see editachasset to just update the assetname).
   **/
   [[eosio::action]]
   void editach( name ecosystem_owner,
@@ -313,6 +313,36 @@ public:
       ecosystem.categories[category_id].achievements[achievement_id].description = description;
       ecosystem.categories[category_id].achievements[achievement_id].assetname = assetname;
       ecosystem.categories[category_id].achievements[achievement_id].maxquantity = maxquantity;
+    });
+  }
+
+
+  [[eosio::action]]
+  void editachasset(name ecosystem_owner,
+                    uint32_t ecosystem_id,
+                    uint32_t category_id,
+                    uint32_t achievement_id,
+                    string assetname) {
+    check_is_contract_or_owner(ecosystem_owner);
+
+    validateAssetname(assetname);
+
+    auto ecosystems_table = get_ecosystems_table_for(get_self());
+    auto ecosystems_iter = ecosystems_table.find(ecosystem_id);
+    check(ecosystems_iter != ecosystems_table.end(), "Ecosystem not found");
+
+    // The ecosystem_owner must match the Ecosystem.account to make changes
+    check(ecosystems_iter->account == ecosystem_owner, "Not authorized");
+
+    check(category_id < ecosystems_iter->categories.size(), "Category not found");
+
+    auto achievements = ecosystems_iter->categories[category_id].achievements;
+    check(achievement_id < achievements.size(), "Achievement not found");
+
+    // Can update assetname regardless of whether or not the Achievement has
+    //  already been granted at least once.
+    ecosystems_table.modify(ecosystems_iter, maybe_charge_to(ecosystem_owner), [&](auto& ecosystem) {
+      ecosystem.categories[category_id].achievements[achievement_id].assetname = assetname;
     });
   }
 
@@ -740,5 +770,5 @@ private:
 };
 
 
-EOSIO_DISPATCH( waxbadges, (addecosys)(editecosys)(ecosysowner)(rmecosys)(addcat)(editcat)(rmlastcat)(addach)(editach)(rmlastach)(retireach)(adduser)(edituser)(wipeusername)(approveclaim)(claimuser)(grantach)(wipetables) )
+EOSIO_DISPATCH( waxbadges, (addecosys)(editecosys)(ecosysowner)(rmecosys)(addcat)(editcat)(rmlastcat)(addach)(editach)(editachasset)(rmlastach)(retireach)(adduser)(edituser)(wipeusername)(approveclaim)(claimuser)(grantach)(wipetables) )
 

@@ -26,10 +26,36 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
         <style>
-            .tweet_button {
-                position: absolute;
-                top: 0.5em;
-                right: 1em;
+            .breadcrumbing {
+                font-size: 0.7em;
+                margin-left: 0.5em;
+                margin-bottom: 1.5em;
+            }
+            .info {
+                margin-top: 6em;
+                margin-left: -1em;
+                margin-right: -1em;
+                margin-bottom: -1em;
+                padding-top: 2em;
+                padding-left: 0.25em;
+                padding-right: 0.25em;
+                border-top: 4px solid #6cc7cc;
+                background-color: #2c878c;
+                background-image: linear-gradient(#4ca7ac 30%, #7cd7dc);
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                padding-bottom: 3em;
+                color: #333;
+            }
+            .tagline {
+                font-style: italic;
+                text-align: center;
+                margin-bottom: 1em;
+            }
+            .info_text {
+                max-width: 700px;
+                margin: auto;
+                font-size: 0.8em;
             }
         </style>
         {% block header_content %}
@@ -55,12 +81,30 @@
 
   </header>
   <body>
-    {% block social_media_shares %}{% endblock %}
     <a href="/"><img width="175" height="36" src="{{ url_for('static', filename='img/waxbadges_logo_350x72.png') }}" /></a>
+    <div class="breadcrumbing">
+        {% block breadcrumbing %}
+        {% endblock %}
+    </div>
 
     <div class="main_content">
       {% block main_content %}
       {% endblock %}
+    </div>
+
+    <div class="info">
+        <div class="page_title">About WAXBadges</div>
+
+        <div class="tagline">Achievements logged on the blockchain for eternity! Keep what you earn!</div>
+
+        <div class="info_text">
+            WAXBadges is an open Achievements platform that safely preserves your achievements forever on the WAX blockchain. Even if the game or company disappears, your achievements will always live on!
+
+            <p>Any game studio or app developer can easily integrate their achievements into WAXBadges at almost zero cost.
+
+            <p>Learn more at <a href="https://github.com/kdmukai/waxbadges" target="_new">https://github.com/kdmukai/waxbadges</a>
+        </div>
+
     </div>
 
     {% block js_content %}

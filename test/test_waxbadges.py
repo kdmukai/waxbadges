@@ -534,6 +534,31 @@ class Test(unittest.TestCase):
         self.assertTrue(table.json["rows"][0]["categories"][0]["achievements"][achievement_id]["name"] != new_achievement_name)
 
 
+    def test_0711_edit_assetname_granted_achievement(self):
+        COMMENT("Should allow a WAX account to update the assetname for an Achievement that has been granted at least once")
+        achievement_id = 0
+        new_assetname = "newname.png"
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertTrue(len(table.json["rows"][0]["categories"][0]["achievements"][achievement_id]["usergrants"]) > 0)
+
+        CONTRACT.push_action(
+            "editachasset",
+            {
+                "ecosystem_owner": STUDIOA,
+                "ecosystem_id": 0,
+                "category_id": 0,
+                "achievement_id": achievement_id,
+                "assetname": new_assetname
+            },
+            permission=(STUDIOA, Permission.ACTIVE)
+        )
+
+        table = CONTRACT.table("ecosystems", CONTRACT)
+        self.assertTrue(table.json["rows"][0]["categories"][0]["achievements"][achievement_id]["assetname"] == new_assetname, table.json["rows"][0]["categories"][0]["achievements"][achievement_id]["assetname"])
+
+
+
     def test_0750_rmecosys_with_granted_achievement_fails(self):
         COMMENT("Should prevent an WAX account from deleting an Ecosystem that has an Achievement that has been granted at least once")
         ecosystem_id = 0

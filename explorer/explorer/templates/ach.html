@@ -105,19 +105,10 @@
 
 
 
-
-{% block social_media_shares %}
-    <div class="tweet_button">
-        <a class="twitter-share-button"
-          href="https://twitter.com/intent/tweet"
-          data-size="large"
-          data-text="The &quot;{{ achievement.name }}&quot; achievement from {{ ecosystem.name }}"
-          data-url="https://explorer.waxbadges.com/ach/{{ ecosystem.key }}/{{ category_id }}/{{ achievement.key }}"
-          data-related="WAXBadges">
-        Tweet
-        </a>
-    </div>
+{% block breadcrumbing %}
+    <a href="/">home</a> > <a href="/ecosys/{{ ecosystem.key }}">{{ ecosystem.name }}</a> > {{ achievement.name }}
 {% endblock %}
+
 
 
 
@@ -129,12 +120,22 @@
     <div class="achievement">
         <img class="ach_asset" src="//{{ ecosystem.assetbaseurl }}/{{ achievement.assetname }}"/>
         <div class="ach_name">{{ achievement.name }}</div>
-        <div class="ach_quantity">max: {{ achievement.maxquantity }}</div>
+        <div class="ach_quantity">max: {{ achievement.maxquantity }} / remaining: {{ achievement.num_available }}</div>
         <div class="ach_description">{{ achievement.description }}</div>
+        <div class="tweet_button">
+            <a class="twitter-share-button"
+              href="https://twitter.com/intent/tweet"
+              data-size="large"
+              data-text="The &quot;{{ achievement.name }}&quot; achievement from {{ ecosystem.name }}"
+              data-url="https://explorer.waxbadges.com/ach/{{ ecosystem.key }}/{{ category_id }}/{{ achievement.key }}"
+              data-related="WAXBadges">
+            Tweet
+            </a>
+        </div>
     </div>
 
     <div class="usergrants">
-        <div class="section_title">User Grants</div>
+        <div class="section_title">Awarded to</div>
         {% for usergrant in usergrants %}
             <div class="usergrant" id="usergrant_{{ usergrant.user.user_id }}">
                 <img src="{{ usergrant.user.avatarurl }}"/>

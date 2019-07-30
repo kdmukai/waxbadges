@@ -76,6 +76,11 @@
 
 
 
+{% block breadcrumbing %}
+    <a href="/">home</a> > {{ ecosystem.name }}
+{% endblock %}
+
+
 
 {% block main_content %}
     <div id="ecosystem_name" class="page_title">{{ ecosystem.name }}</div>
