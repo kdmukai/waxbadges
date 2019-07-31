@@ -8,8 +8,11 @@ twitter: [@WAXBadges](https://twitter.com/WAXBadges)
 
 
 * WAXBadges Achievements Explorer: [explorer.waxbadges.com](https://explorer.waxbadges.com)
-* WAXBadges CREATOR tool: [github repo](https://github.com/kdmukai/waxbadges_creator)
-* Example game integration: _coming soon_
+* WAXBadges CREATOR tool: [github: waxbadges_creator](https://github.com/kdmukai/waxbadges_creator)
+* Example game integration:
+  * Play now! [2048 - WAXBages Edition](https://2048.waxbadges.com)
+  * source: [github: waxbages_2048](https://github.com/kdmukai/waxbadges_2048)
+* Twitter campaign tool: [github: waxbadges_twitter](https://github.com/kdmukai/waxbadges_twitter)
 
 
 ## Motivation
