@@ -9,7 +9,7 @@ Flask-CDN==1.5.3
 idna==2.8
 iso8601==0.1.12
 itsdangerous==1.1.0
-Jinja2==2.10.1
+Jinja2==2.11.3
 libeospy==2.0.1
 MarkupSafe==1.1.1
 pytz==2019.1
